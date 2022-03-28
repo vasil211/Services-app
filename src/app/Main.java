@@ -1,6 +1,4 @@
 package app;
-
-
 import app.dao.*;
 import app.dao.impl.DaoFactoryImpl;
 import app.exeption.NonexistingEntityException;
@@ -12,7 +10,6 @@ import app.service.impl.*;
 import app.service.validators.PostValidation;
 import app.service.validators.RatingValidation;
 import app.service.validators.UserValidation;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.StringJoiner;
