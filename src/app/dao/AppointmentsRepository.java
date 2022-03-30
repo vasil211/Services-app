@@ -9,10 +9,15 @@ public interface AppointmentsRepository extends Repository<Long, Appointments> {
     boolean declineAppointment(Long id);
     boolean finishAppointment(Long id);
     Long countFinishedForProvider(Long serviceProviderId);
-    Collection<Appointments> findAllPending(Long serviceProviderId);
-    Collection<Appointments> findAllAccepted(Long serviceProviderId);
-    Collection<Appointments> findAllDeclined(Long serviceProviderId);
-    Collection<Appointments> findAllFinished(Long serviceProviderId);
+    Collection<Appointments> findAllPendingForUser(Long serviceProviderId);
+    Collection<Appointments> findAllAcceptedForUser(Long serviceProviderId);
+    Collection<Appointments> findAllDeclinedForUser(Long serviceProviderId);
+    Collection<Appointments> findAllFinishedForUser(Long serviceProviderId);
+    Collection<Appointments> findAllPending();
+    Collection<Appointments> findAllAccepted();
+    Collection<Appointments> findAllDeclined();
+    Collection<Appointments> findAllFinished();
+
 }
 
 

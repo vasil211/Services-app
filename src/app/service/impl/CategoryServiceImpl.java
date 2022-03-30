@@ -32,6 +32,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public Category getCategoryByName(String name) throws NonexistingEntityException {
+        var category = categoryRepo.findByName(name);
+        if (category == null) {
+            throw new NonexistingEntityException("Category with name: " + name + " does not exist");
+        }
+        return category;
+    }
+
+    @Override
     public Category addCategory(Category category) throws InvalidEntityDataException {
         if (category.getName() == null) {
             throw new InvalidEntityDataException("Category name cannot be empty");
@@ -48,21 +57,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategoryById() {
-        Scanner sc = new Scanner(System.in);
-        long id = 0;
-        do {
-            System.out.println("Enter ID of category to delete: ");
-            var idStr = sc.nextLine();
-            try {
-                id = Integer.parseInt(idStr);
-                break;
-            } catch (NumberFormatException ex) {
-                System.out.println("Error: Invalid choice. Please enter a valid number");
-            }
-        } while (true);
-        System.out.println("Deleting: ");
-        System.out.println(categoryRepo.deleteById(id));
+    public void deleteCategoryById(Long id) throws NonexistingEntityException {
+        if(categoryRepo.deleteById(id)){
+            throw new NonexistingEntityException("Category with id: " + id + " does not exist");
+        }
     }
 
     @Override

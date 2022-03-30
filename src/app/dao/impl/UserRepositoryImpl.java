@@ -57,7 +57,7 @@ class UserRepositoryImpl implements UserRepository {
                 user.setCreated(rs.getTimestamp("created").toLocalDateTime());
 
             } else {
-                throw new InvalidUserLoginExeption("Wrong username");
+                throw new InvalidUserLoginExeption("User not found");
             }
         } catch (SQLException e) {
             e.printStackTrace();

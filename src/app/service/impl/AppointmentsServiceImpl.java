@@ -3,6 +3,7 @@ package app.service.impl;
 import app.dao.AppointmentsRepository;
 import app.dao.CategoryRepository;
 import app.exeption.InvalidEntityDataException;
+import app.exeption.NonexistingEntityException;
 import app.model.Appointments;
 import app.model.Post;
 import app.service.AppointmentsService;
@@ -50,23 +51,59 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     @Override
-    public Collection<Appointments> findAllPending(Long serviceProviderId) {
-        return appointmentsRepo.findAllPending(serviceProviderId);
+    public Collection<Appointments> findAllPendingForUser(Long serviceProviderId) throws NonexistingEntityException {
+        var appointments=  appointmentsRepo.findAllPendingForUser(serviceProviderId);
+        if(appointments.isEmpty()){
+            throw new NonexistingEntityException("There are no pending appointments for this user");
+        }
+        return appointments;
     }
 
     @Override
-    public Collection<Appointments> findAllAccepted(Long serviceProviderId) {
-        return appointmentsRepo.findAllAccepted(serviceProviderId);
+    public Collection<Appointments> findAllAcceptedForUser(Long serviceProviderId) throws NonexistingEntityException {
+        var appointments=  appointmentsRepo.findAllAcceptedForUser(serviceProviderId);
+        if(appointments.isEmpty()){
+            throw new NonexistingEntityException("There are no accepted appointments for this user");
+        }
+        return appointments;
     }
 
     @Override
-    public Collection<Appointments> findAllDeclined(Long serviceProviderId) {
-        return appointmentsRepo.findAllDeclined(serviceProviderId);
+    public Collection<Appointments> findAllDeclinedForUser(Long serviceProviderId) throws NonexistingEntityException {
+        var appointments=  appointmentsRepo.findAllDeclinedForUser(serviceProviderId);
+        if(appointments.isEmpty()){
+            throw new NonexistingEntityException("There are no declined appointments for this user");
+        }
+        return appointments;
     }
 
     @Override
-    public Collection<Appointments> findAllFinished(Long serviceProviderId) {
-        return appointmentsRepo.findAllFinished(serviceProviderId);
+    public Collection<Appointments> findAllFinishedForUser(Long serviceProviderId) throws NonexistingEntityException {
+        var appointments=  appointmentsRepo.findAllFinishedForUser(serviceProviderId);
+        if(appointments.isEmpty()){
+            throw new NonexistingEntityException("There are no finished appointments for this user");
+        }
+        return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllPending() {
+        return appointmentsRepo.findAllPending();
+    }
+
+    @Override
+    public Collection<Appointments> findAllAccepted() {
+        return appointmentsRepo.findAllAccepted();
+    }
+
+    @Override
+    public Collection<Appointments> findAllDeclined() {
+        return appointmentsRepo.findAllDeclined();
+    }
+
+    @Override
+    public Collection<Appointments> findAllFinished() {
+        return appointmentsRepo.findAllFinished();
     }
 
     @Override

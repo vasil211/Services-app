@@ -19,5 +19,6 @@ public interface PostService {
     Long countFromCategory(Long id) throws NonexistingEntityException;
     Long countFromUser(Long id) throws NonexistingEntityException;
     float calculateRatingForPost(Long id);
+    float calculateRatingForUser(Long id);
     Collection<Post> getPostsByCategoryName(String name) throws NonexistingEntityException;
 }

@@ -2,10 +2,12 @@ package app.dao.impl;
 
 import app.dao.CategoryRepository;
 import app.model.Category;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 class CategoryRepositoryImpl implements CategoryRepository {
 
@@ -33,15 +35,35 @@ class CategoryRepositoryImpl implements CategoryRepository {
         return categories;
     }
 
+    // Method to find category by name
+    @Override
+    public Category findByName(String name) {
+        Category category = null;
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM services.categories WHERE name = ?");
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                category = new Category();
+                category.setId(rs.getLong("id"));
+                category.setName(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return category;
+    }
+
     // Method to find category by id
     @Override
     public Category findById(Long id) {
-        Category category = new Category();
+        Category category = null;
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM services.categories WHERE id = ?");
             statement.setLong(1, id);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
+                category = new Category();
                 category.setId(rs.getLong("id"));
                 category.setName(rs.getString("name"));
             }
@@ -82,15 +104,38 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
     @Override
     public boolean deleteById(Long id) {
+        Category category = null;
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM services.categories WHERE id = ?");
+            statement.setLong(1, id);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                category = new Category();
+                category.setId(rs.getLong("id"));
+                category.setName(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (category != null) {
+            return true;
+        }
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("delete from posts where category_id =?");
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("delete from categories where id=?");
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
-            return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+
         }
+        return false;
     }
 
     @Override

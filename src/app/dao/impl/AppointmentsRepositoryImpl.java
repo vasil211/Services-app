@@ -3,6 +3,8 @@ package app.dao.impl;
 import app.dao.AppointmentsRepository;
 import app.model.Appointments;
 import app.model.Category;
+import app.model.Post;
+import app.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,7 +13,8 @@ import java.util.List;
 
 public class AppointmentsRepositoryImpl implements AppointmentsRepository {
     private final Connection connection;
-
+    private final UserRepositoryImpl userRepository = new UserRepositoryImpl();
+    private final PostRepositoryImpl postRepository = new PostRepositoryImpl();
     public AppointmentsRepositoryImpl() {
         connection = app.util.Database.getConnection();
     }
@@ -71,9 +74,9 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
             while (rs.next()) {
                 Appointments appointment = new Appointments();
                 appointment.setId(rs.getLong("id"));
-                appointment.setServiceProviderId(rs.getLong("service_provider_id"));
-                appointment.setUserId(rs.getLong("user_id"));
-                appointment.setPostId(rs.getLong("post_id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
                 appointment.setState(rs.getString("state"));
                 appointment.setAddress(rs.getString("address"));
                 appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
@@ -92,14 +95,14 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
         Appointments appointment = new Appointments();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT * FROM services.appointments WHERE id = ?");
+                    "SELECT * FROM services.appointments WHERE id= ?");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 appointment.setId(rs.getLong("id"));
-                appointment.setServiceProviderId(rs.getLong("service_provider_id"));
-                appointment.setUserId(rs.getLong("user_id"));
-                appointment.setPostId(rs.getLong("post_id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
                 appointment.setState(rs.getString("state"));
                 appointment.setAddress(rs.getString("address"));
                 appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
@@ -116,10 +119,11 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
     public Appointments create(Appointments entity) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO services.appointments (service_provider_id, user_id, post_id, state, address, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            preparedStatement.setLong(1, entity.getServiceProviderId());
-            preparedStatement.setLong(2, entity.getUserId());
-            preparedStatement.setLong(3, entity.getPostId());
+                    "INSERT INTO services.appointments (service_provider_id, user_id, post_id, state, address, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setLong(1, entity.getServiceProvider().getId());
+            preparedStatement.setLong(2, entity.getUser().getId());
+            preparedStatement.setLong(3, entity.getPost().getId());
             preparedStatement.setString(4, entity.getState());
             preparedStatement.setString(5, entity.getAddress());
             preparedStatement.setTimestamp(6, Timestamp.valueOf(entity.getCreated()));
@@ -140,10 +144,10 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
     public Appointments update(Appointments entity) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "UPDATE services.appointments SET service_provider_id = ?, user_id = ?, post_id = ?, state = ?, address = ? , created = ?, modified = ? WHERE id = ?");
-            preparedStatement.setLong(1, entity.getServiceProviderId());
-            preparedStatement.setLong(2, entity.getUserId());
-            preparedStatement.setLong(3, entity.getPostId());
+                    "UPDATE services.appointments SET service_provider_id=?, user_id=?, post_id=?, state=?, address=?, created=?, modified=? WHERE id=?");
+            preparedStatement.setLong(1, entity.getServiceProvider().getId());
+            preparedStatement.setLong(2, entity.getUser().getId());
+            preparedStatement.setLong(3, entity.getPost().getId());
             preparedStatement.setString(4, entity.getState());
             preparedStatement.setString(5, entity.getAddress());
             preparedStatement.setTimestamp(6, Timestamp.valueOf(entity.getCreated()));
@@ -207,7 +211,7 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
 
     // Method to get all appointments from database where service provider id is equal to id and state is equal to "PENDING"
     @Override
-    public Collection<Appointments> findAllPending(Long serviceProviderId) {
+    public Collection<Appointments> findAllPendingForUser(Long serviceProviderId) {
         Collection<Appointments> appointments = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
@@ -217,9 +221,9 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
             while (rs.next()) {
                 Appointments appointment = new Appointments();
                 appointment.setId(rs.getLong("id"));
-                appointment.setServiceProviderId(rs.getLong("service_provider_id"));
-                appointment.setUserId(rs.getLong("user_id"));
-                appointment.setPostId(rs.getLong("post_id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
                 appointment.setState(rs.getString("state"));
                 appointment.setAddress(rs.getString("address"));
                 appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
@@ -234,7 +238,7 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
 
     // Method to get all appointments from database where service provider id is equal to id and state is equal to "ACCEPTED"
     @Override
-    public Collection<Appointments> findAllAccepted(Long serviceProviderId) {
+    public Collection<Appointments> findAllAcceptedForUser(Long serviceProviderId) {
         Collection<Appointments> appointments = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
@@ -244,9 +248,9 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
             while (rs.next()) {
                 Appointments appointment = new Appointments();
                 appointment.setId(rs.getLong("id"));
-                appointment.setServiceProviderId(rs.getLong("service_provider_id"));
-                appointment.setUserId(rs.getLong("user_id"));
-                appointment.setPostId(rs.getLong("post_id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
                 appointment.setState(rs.getString("state"));
                 appointment.setAddress(rs.getString("address"));
                 appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
@@ -260,7 +264,7 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
     }
     // Method to get all appointments from database where service provider id is equal to id and state is equal to "DECLINED"
     @Override
-    public Collection<Appointments> findAllDeclined(Long serviceProviderId) {
+    public Collection<Appointments> findAllDeclinedForUser(Long serviceProviderId) {
         Collection<Appointments> appointments = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
@@ -270,9 +274,9 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
             while (rs.next()) {
                 Appointments appointment = new Appointments();
                 appointment.setId(rs.getLong("id"));
-                appointment.setServiceProviderId(rs.getLong("service_provider_id"));
-                appointment.setUserId(rs.getLong("user_id"));
-                appointment.setPostId(rs.getLong("post_id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
                 appointment.setState(rs.getString("state"));
                 appointment.setAddress(rs.getString("address"));
                 appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
@@ -286,19 +290,18 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
     }
     // Method to get all appointments from database where service provider id is equal to id and state is equal to "FINISHED"
     @Override
-    public Collection<Appointments> findAllFinished(Long serviceProviderId) {
+    public Collection<Appointments> findAllFinishedForUser(Long serviceProviderId) {
         Collection<Appointments> appointments = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT * FROM services.appointments WHERE service_provider_id = ? AND state = 'FINISHED'");
-            preparedStatement.setLong(1, serviceProviderId);
+                    "SELECT * FROM services.appointments WHERE  state = 'FINISHED'");
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 Appointments appointment = new Appointments();
                 appointment.setId(rs.getLong("id"));
-                appointment.setServiceProviderId(rs.getLong("service_provider_id"));
-                appointment.setUserId(rs.getLong("user_id"));
-                appointment.setPostId(rs.getLong("post_id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
                 appointment.setState(rs.getString("state"));
                 appointment.setAddress(rs.getString("address"));
                 appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
@@ -310,4 +313,105 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
         }
         return appointments;
     }
+
+    @Override
+    public Collection<Appointments> findAllPending() {
+        Collection<Appointments> appointments = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM services.appointments WHERE state = 'PENDING'");
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Appointments appointment = new Appointments();
+                appointment.setId(rs.getLong("id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
+                appointment.setState(rs.getString("state"));
+                appointment.setAddress(rs.getString("address"));
+                appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                appointment.setUpdated(rs.getTimestamp("modified").toLocalDateTime());
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllAccepted() {
+        Collection<Appointments> appointments = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM services.appointments WHERE state = 'ACCEPTED'");
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Appointments appointment = new Appointments();
+                appointment.setId(rs.getLong("id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
+                appointment.setState(rs.getString("state"));
+                appointment.setAddress(rs.getString("address"));
+                appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                appointment.setUpdated(rs.getTimestamp("modified").toLocalDateTime());
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllDeclined() {
+        Collection<Appointments> appointments = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM services.appointments WHERE state = 'DECLINED'");
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Appointments appointment = new Appointments();
+                appointment.setId(rs.getLong("id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
+                appointment.setState(rs.getString("state"));
+                appointment.setAddress(rs.getString("address"));
+                appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                appointment.setUpdated(rs.getTimestamp("modified").toLocalDateTime());
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllFinished() {
+        Collection<Appointments> appointments = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM services.appointments WHERE state = 'FINISHED'");
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Appointments appointment = new Appointments();
+                appointment.setId(rs.getLong("id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
+                appointment.setState(rs.getString("state"));
+                appointment.setAddress(rs.getString("address"));
+                appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                appointment.setUpdated(rs.getTimestamp("modified").toLocalDateTime());
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
+
 }

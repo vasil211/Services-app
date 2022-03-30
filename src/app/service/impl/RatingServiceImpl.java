@@ -31,8 +31,10 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public Collection<Rating> getAllForUser(Long id) {
-        return ratingRepo.findAllForUser(id);
+    public Collection<Rating> getAllForUser(Long id) throws NonexistingEntityException {
+        var ratings = ratingRepo.findAllForUser(id);
+        if (ratings.isEmpty()) throw new NonexistingEntityException("No ratings for this user");
+        return ratings;
     }
 
     @Override

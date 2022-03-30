@@ -12,4 +12,5 @@ public interface PostRepository extends Repository<Long, Post>{
     public Long countPostsByUser(Long id);
     public float calculateRatingForPost(Long id);
     Collection<Post> getAllPostsByCategory(Long id);
+    float calculateRatingForUser(Long id);
 }

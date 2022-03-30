@@ -85,7 +85,7 @@ create table appointments(
 ); 
 
 insert into users(role, user_name, password, email, first_name, last_name, phone,created)
-values("ADMIN", "admin", "d138768d3b5eca407f0dd579c5ca3767", "admin@abv.bg", "AdminFirstName", "AdminLastName", "+359876547826", now()),
+values("ADMIN", "admin", "4d1ace77931dbb1208607eb3ab594086", "admin@abv.bg", "AdminFirstName", "AdminLastName", "+359876547826", now()),
 ("MODERATOR", "moderator", "ba97044edde4cc5625a0859c28ba0309", "moderator@abv.bg", "ModeratorFirstName", "ModeratorLastName", "+359876547826", now()),
 ("SERVICE_PROVIDER", "serviceProvider", "4735cbfe2fa340cc4bea23f6812751db", "provider@abv.bg", "ProviderFirstName", "ProviderLastName", "+359876547826", now()),
 ("USER", "admin", "c37c6474f327735b620b4d4a3f684560", "user@abv.bg", "UserFirstName", "UserLastName", "+359876547826", now());

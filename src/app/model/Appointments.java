@@ -8,9 +8,9 @@ import java.util.StringJoiner;
 
 public class Appointments implements Identifiable<Long> {
     private Long id;
-    private Long serviceProviderId;
-    private Long userId;
-    private Long postId;
+    private User serviceProvider;
+    private User user;
+    private Post post;
     private String state;
     private String address;
     private LocalDateTime created;
@@ -19,11 +19,12 @@ public class Appointments implements Identifiable<Long> {
     public Appointments() {
     }
 
-    public Appointments(Long id, Long serviceProviderId, Long userId, Long postId, String state, String address, LocalDateTime created, LocalDateTime updated) {
+    public Appointments(Long id, User serviceProvider, User user, Post post, String state, String address,
+                        LocalDateTime created, LocalDateTime updated) {
         this.id = id;
-        this.serviceProviderId = serviceProviderId;
-        this.userId = userId;
-        this.postId = postId;
+        this.serviceProvider = serviceProvider;
+        this.user = user;
+        this.post = post;
         this.state = state;
         this.address = address;
         this.created = created;
@@ -46,28 +47,28 @@ public class Appointments implements Identifiable<Long> {
         this.id = id;
     }
 
-    public Long getServiceProviderId() {
-        return serviceProviderId;
+    public User getServiceProvider() {
+        return serviceProvider;
     }
 
-    public void setServiceProviderId(Long serviceProviderId) {
-        this.serviceProviderId = serviceProviderId;
+    public void setServiceProvider(User serviceProvider) {
+        this.serviceProvider = serviceProvider;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Long getPostId() {
-        return postId;
+    public Post getPost() {
+        return post;
     }
 
-    public void setPostId(Long postId) {
-        this.postId = postId;
+    public void setPost(Post post) {
+        this.post = post;
     }
 
     public String getState() {

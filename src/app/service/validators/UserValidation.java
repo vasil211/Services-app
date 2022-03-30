@@ -19,7 +19,7 @@ public class UserValidation {
         this.userRepo = userRepository;
     }
 
-    public User validateUser(User user)  throws ConstraintViolationException {
+    public User validateUser(User user) throws ConstraintViolationException {
         List<ConstraintViolation> violations = new ArrayList<>();
         var firstName = user.getFirstName().trim().length();
         var lastName = user.getLastName().trim().length();
@@ -34,7 +34,7 @@ public class UserValidation {
                             "Last Name length should be between 2 and 15 characters."));
         }
         try {
-        isValidEmailAddress(user.getEmail());
+            isValidEmailAddress(user.getEmail());
         } catch (InvalidEntityDataException e) {
             violations.add(
                     new ConstraintViolation(user.getClass().getName(), "Email", user.getEmail(),
@@ -61,7 +61,7 @@ public class UserValidation {
                     new ConstraintViolation(user.getClass().getName(), "Phone", user.getPhone(),
                             e.getMessage()));
         }
-        if(violations.size() > 0) {
+        if (violations.size() > 0) {
             throw new ConstraintViolationException("Invalid User field", violations);
         }
         return user;
@@ -95,6 +95,7 @@ public class UserValidation {
         }
         return true;
     }
+
     public boolean isPasswordCorrect(String password) throws InvalidEntityDataException {
         String regexPattern = "^(?=.{8,15}$)(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9\\W]).*$";
         Pattern pattern = Pattern.compile(regexPattern);
@@ -104,6 +105,7 @@ public class UserValidation {
         }
         return true;
     }
+
     public boolean isPhoneValid(String phone) throws InvalidEntityDataException {
         String regexPattern = "((\\+\\d{1,2}\\s?)?1?\\-?\\.?\\s?\\(?\\d{3}\\)?[\\s.-]?)?\\d{3}[\\s.-]?\\d{4}";
         Pattern pattern = Pattern.compile(regexPattern);
@@ -113,4 +115,33 @@ public class UserValidation {
         }
         return true;
     }
+
+    //    public boolean validateFirstName(String firstName) throws InvalidEntityDataException {
+//        if(firstName.length() < 2 || firstName.length() > 20) {
+//            throw new InvalidEntityDataException("First name must be between 2 and 20 characters.");
+//        }
+//        return true;
+//    }
+    public boolean validateLastName(String lastName) throws InvalidEntityDataException {
+        String regexPattern = "^[a-zA-Z]{2,20}$";
+        Pattern pattern = Pattern.compile(regexPattern);
+        Matcher matcher = pattern.matcher(lastName);
+        if (matcher.find()) {
+            return true;
+        }
+        throw new InvalidEntityDataException("Last name must be between 2 and 20 characters and contain only letters.");
+    }
+
+    // Method to validate first name with regex
+    public boolean validateFirstName(String firstname) throws InvalidEntityDataException {
+        String regexPattern = "^[a-zA-Z]{2,20}$";
+        Pattern pattern = Pattern.compile(regexPattern);
+        Matcher matcher = pattern.matcher(firstname);
+        if (matcher.find()) {
+            return true;
+        }
+        throw new InvalidEntityDataException("First name must be between 2 and 20 characters and contain only letters.");
+    }
+
+
 }

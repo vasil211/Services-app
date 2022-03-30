@@ -2,6 +2,8 @@ package app.model;
 
 import app.dao.Identifiable;
 
+import java.util.StringJoiner;
+
 public class Category implements Identifiable<Long> {
     private Long id;
     private String name;
@@ -28,5 +30,13 @@ public class Category implements Identifiable<Long> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", "", " ")
+                .add("id: " + id)
+                .add("name: '" + name + "'")
+                .toString();
     }
 }

@@ -59,9 +59,10 @@ class RatingRepositoryImpl implements RatingRepository {
                 rating.setUserProvider(userRepository.findById(rs.getLong("service_provider_id")));
                 rating.setUser(userRepository.findById(rs.getLong("user_id")));
                 rating.setPost(postRepository.findById(rs.getLong("post_id")));
-                rating.setRating(rs.getShort("email"));
-                rating.setComment((rs.getString("first_name")));
+                rating.setRating(rs.getShort("rating"));
+                rating.setComment((rs.getString("comment")));
                 rating.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                rating.setModified(rs.getTimestamp("modified").toLocalDateTime());
                 ratings.add(rating);
             }
         } catch (SQLException e) {

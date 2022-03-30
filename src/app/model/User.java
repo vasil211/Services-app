@@ -137,16 +137,16 @@ public class User implements Identifiable<Long> {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Override
     public String toString() {
-        StringJoiner sj = new StringJoiner(", ", "Users: ", " \n");
-        sj.add("\n" + getId().toString())
-                .add(getRole().toString())
-                .add(getUserName())
-                .add(getEmail())
-                .add(getFirstName())
-                .add(getLastName())
-                .add(getPhone())
+        StringJoiner sj = new StringJoiner(", ", "User: ", " \n");
+        sj.add("\n ID: " + getId().toString())
+                .add("Role: " + getRole().toString())
+                .add("Username: " + getUserName())
+                .add("Email: " + getEmail())
+                .add("\nFirst name: " + getFirstName())
+                .add("Last name: " + getLastName())
+                .add("Phone: " + getPhone())
                 .add(getIsOnline() ? "Online" : "Offline")
-                .add("Last online" + getLastOnline().format(formatter))
+                .add("\nLast online: " + getLastOnline().format(formatter))
                 .add("Modified: " + getModified().format(formatter))
                 .add("Created: " + getCreated().format(formatter));
         return sj.toString();

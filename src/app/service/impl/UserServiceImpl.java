@@ -134,27 +134,53 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(User user) {
-        try {
-            user = userValidation.validateUser(user);
-            user.setCreated(LocalDateTime.now());
-            user.setModified(LocalDateTime.now());
-        } catch (ConstraintViolationException ex) {
-            var sb = new StringBuilder(ex.getMessage());
+    public User updateUser(User user, String filedUpdating, String newValue) {
+        if (filedUpdating.equals("password")) {
+            try {
+                userValidation.isPasswordCorrect(newValue);
+                user.setPassword(hash(newValue));
+            } catch (InvalidEntityDataException e) {
+                e.printStackTrace();
+            }
+        } else if (filedUpdating.equals("username")) {
+            try {
+                userValidation.isValidUsername(newValue);
+                user.setUserName(newValue);
+            }catch (InvalidEntityDataException e) {
+                e.printStackTrace();
+            }
+        } else if (filedUpdating.equals("email")) {
+            try {
+                userValidation.isValidEmailAddress(newValue);
+                user.setEmail(newValue);
 
-                sb.append(", invalid fields:\n");
-                var violations = (ex.getFieldViolations());
-                sb.append(violations.stream().map(v -> String.format(" - %s.%s [%s] - %s",
-                                v.getType().substring(v.getType().lastIndexOf(".") + 1),
-                                v.getField(),
-                                v.getInvalidValue(),
-                                v.getErrorMessage())
-                        ).collect(Collectors.joining("\n"))
-                );
-
-            System.out.println(sb);
-            return null;
+            }catch (InvalidEntityDataException e) {
+                e.printStackTrace();
+            }
+        } else if (filedUpdating.equals("firstName")) {
+            try {
+                userValidation.validateFirstName(newValue);
+                user.setFirstName(newValue);
+            }
+            catch (InvalidEntityDataException e) {
+                e.printStackTrace();
+            }
+        }else if (filedUpdating.equals("lastName")) {
+            try {
+                userValidation.validateLastName(newValue);
+                user.setLastName(newValue);
+            }catch (InvalidEntityDataException e) {
+                e.printStackTrace();
+            }
+        }else if (filedUpdating.equals("phone")) {
+            try {
+                userValidation.isPhoneValid(newValue);
+                user.setPhone(newValue);
+            }catch (InvalidEntityDataException e) {
+                e.printStackTrace();
+            }
         }
+        user.setModified(LocalDateTime.now());
         return userRepo.update(user);
     }
 

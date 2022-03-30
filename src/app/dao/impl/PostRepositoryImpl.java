@@ -111,14 +111,22 @@ class PostRepositoryImpl implements PostRepository {
     @Override
     public boolean deleteById(Long id) {
         try {
+            PreparedStatement preparedStatement = connection.prepareStatement("delete from ratings where post_id=?");
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        try {
             PreparedStatement preparedStatement = connection.prepareStatement("delete from posts where id=?");
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -208,6 +216,22 @@ class PostRepositoryImpl implements PostRepository {
         }
         return posts;
     }
+
+    @Override
+    public float calculateRatingForUser(Long id) {
+        float rating = 0;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select avg(rating) from ratings where service_provider_id=?");
+            preparedStatement.setLong(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+            rs.next();
+            rating = rs.getFloat(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rating;
+    }
+
     // Method to count all posts from database where category_id is equal to id
     @Override
     public Long countPostsByCategory(Long id) {

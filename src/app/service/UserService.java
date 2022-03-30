@@ -18,7 +18,7 @@ public interface UserService {
     User login(String username, String password) ;
     User getUserById(Long id) throws NonexistingEntityException;
     User createUser(User user) ;
-    User updateUser(User user);
+    User updateUser(User user, String filedUpdating, String newValue);
     boolean deleteUserById(Long id) throws NonexistingEntityException;
     String hash(String pass);
     String changePassword(Long id);

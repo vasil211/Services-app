@@ -31,9 +31,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Collection<Post> getAllPostsByUser(Long id) throws NonexistingEntityException {
-        var posts = postRepo.findByCategory(id);
+        var posts = postRepo.getAllPostsByUser(id);
         if (posts == null) {
-            throw new NonexistingEntityException("No posts found in this category");
+            throw new NonexistingEntityException("No posts found for this user");
         }
         return posts;
     }
@@ -142,6 +142,11 @@ public class PostServiceImpl implements PostService {
     @Override
     public float calculateRatingForPost(Long id) {
         return postRepo.calculateRatingForPost(id);
+    }
+
+    @Override
+    public float calculateRatingForUser(Long id) {
+        return postRepo.calculateRatingForUser(id);
     }
 
     @Override
