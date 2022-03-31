@@ -10,4 +10,9 @@ public interface RatingRepository extends Repository<Long, Rating>{
     Collection<Rating> findAllForUser(Long id);
     Long countForUser(Long id);
 
+    Collection<Rating> findAllRatingsForPost(long id);
+
+    Collection<Rating> findAllRatingsForUser(long id);
+
+    Collection<Rating> findAllRatingsFromUser(long id);
 }

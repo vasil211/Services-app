@@ -1,11 +1,7 @@
 package app.service;
 
-import app.exeption.InvalidEntityDataException;
-import app.exeption.InvalidUserLoginExeption;
 import app.exeption.NonexistingEntityException;
-import app.model.Post;
 import app.model.Rating;
-import app.model.User;
 
 import java.util.Collection;
 
@@ -18,4 +14,10 @@ public interface RatingService {
     boolean deleteRatingById(Long id) throws NonexistingEntityException;
     float calculateRatingForUser(Long id) throws NonexistingEntityException;
     Long countForUser(Long id);
+
+    Collection<Rating> getAllRatingsForPost(long id) throws NonexistingEntityException;
+
+    Collection<Rating> getAllRatingsForUser(long id) throws NonexistingEntityException;
+
+    Collection<Rating> getAllRatingsFromUser(long id) throws NonexistingEntityException;
 }

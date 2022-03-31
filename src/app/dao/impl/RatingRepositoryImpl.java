@@ -27,17 +27,18 @@ class RatingRepositoryImpl implements RatingRepository {
     public Collection<Rating> findAll() {
         List<Rating> ratings = new ArrayList<>();
         try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT * FROM services.ratings");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from ratings");
+            ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 Rating rating = new Rating();
                 rating.setId(rs.getLong("id"));
                 rating.setUserProvider(userRepository.findById(rs.getLong("service_provider_id")));
                 rating.setUser(userRepository.findById(rs.getLong("user_id")));
                 rating.setPost(postRepository.findById(rs.getLong("post_id")));
-                rating.setRating(rs.getShort("email"));
-                rating.setComment((rs.getString("first_name")));
+                rating.setRating(rs.getShort("rating"));
+                rating.setComment((rs.getString("comment")));
                 rating.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                rating.setModified(rs.getTimestamp("modified").toLocalDateTime());
                 ratings.add(rating);
             }
         } catch (SQLException e) {
@@ -73,20 +74,20 @@ class RatingRepositoryImpl implements RatingRepository {
 
     @Override
     public Rating findById(Long id) {
-        Rating rating = null;
+        Rating rating = new Rating();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("select * from ratings where id=?");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
-            if (rs.next()) {
-                rating = new Rating();
+            while (rs.next()) {
                 rating.setId(rs.getLong("id"));
                 rating.setUserProvider(userRepository.findById(rs.getLong("service_provider_id")));
                 rating.setUser(userRepository.findById(rs.getLong("user_id")));
                 rating.setPost(postRepository.findById(rs.getLong("post_id")));
-                rating.setRating(rs.getShort("email"));
-                rating.setComment((rs.getString("first_name")));
+                rating.setRating(rs.getShort("rating"));
+                rating.setComment((rs.getString("comment")));
                 rating.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                rating.setModified(rs.getTimestamp("modified").toLocalDateTime());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -176,6 +177,81 @@ class RatingRepositoryImpl implements RatingRepository {
             e.printStackTrace();
             return count;
         }
+    }
+
+    @Override
+    public Collection<Rating> findAllRatingsForPost(long id) {
+        Collection<Rating> ratings = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from ratings where post_id = ?");
+            preparedStatement.setLong(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Rating rating = new Rating();
+                rating.setId(rs.getLong("id"));
+                rating.setUserProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                rating.setUser(userRepository.findById(rs.getLong("user_id")));
+                rating.setPost(postRepository.findById(rs.getLong("post_id")));
+                rating.setRating(rs.getFloat("rating"));
+                rating.setComment(rs.getString("comment"));
+                rating.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                rating.setModified(rs.getTimestamp("modified").toLocalDateTime());
+                ratings.add(rating);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ratings;
+    }
+
+    @Override
+    public Collection<Rating> findAllRatingsForUser(long id) {
+        Collection<Rating> ratings = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from ratings where service_provider_id = ?");
+            preparedStatement.setLong(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Rating rating = new Rating();
+                rating.setId(rs.getLong("id"));
+                rating.setUserProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                rating.setUser(userRepository.findById(rs.getLong("user_id")));
+                rating.setPost(postRepository.findById(rs.getLong("post_id")));
+                rating.setRating(rs.getFloat("rating"));
+                rating.setComment(rs.getString("comment"));
+                rating.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                rating.setModified(rs.getTimestamp("modified").toLocalDateTime());
+                ratings.add(rating);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ratings;
+    }
+
+    @Override
+    public Collection<Rating> findAllRatingsFromUser(long id) {
+        Collection<Rating> ratings = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from ratings where user_id = ?");
+            preparedStatement.setLong(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Rating rating = new Rating();
+                rating.setId(rs.getLong("id"));
+                rating.setUserProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                rating.setUser(userRepository.findById(rs.getLong("user_id")));
+                rating.setPost(postRepository.findById(rs.getLong("post_id")));
+                rating.setRating(rs.getFloat("rating"));
+                rating.setComment(rs.getString("comment"));
+                rating.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                rating.setModified(rs.getTimestamp("modified").toLocalDateTime());
+                ratings.add(rating);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ratings;
     }
 
 

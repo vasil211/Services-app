@@ -7,6 +7,7 @@ import app.service.AppointmentsService;
 import app.service.UserService;
 import app.view.Menu;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
@@ -24,28 +25,75 @@ public class AppointmentController {
     public void adminAppointmentsMenu() {
         var menu = new Menu("Appointments Menu", List.of(
                 new Menu.Option("List all PENDING", () -> {
-                    var appointments = appointmentsService.findAllPending() ;
-                    appointments.forEach(appointment ->{
+                    var appointments = appointmentsService.findAllPending();
+                    appointments.forEach(appointment -> {
                         StringJoiner joiner = new StringJoiner("", "\n", " ");
                         joiner.add("Appointment ID: " + appointment.getId());
-                        joiner.add("Provider: " + appointment.getServiceProvider().getFirstName() + " "
+                        joiner.add("\nProvider ID: " + appointment.getServiceProvider().getId()
+                                + " Name:" + appointment.getServiceProvider().getFirstName() + " "
                                 + appointment.getServiceProvider().getLastName());
-                            });
+                        joiner.add("\nClient ID: " + appointment.getUser().getId()
+                                + " Name:" + appointment.getUser().getFirstName() + " "
+                                + appointment.getUser().getLastName());
+                        joiner.add("\nDate: " + appointment.getCreated()
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        joiner.add("Post:  ID: " + appointment.getPost().getId() + " "
+                                + appointment.getPost().getName());
+                    });
                     return "";
                 }),
                 new Menu.Option("List all ACCEPTED", () -> {
-                    var appointments = appointmentsService.findAllAccepted() ;
-                    appointments.forEach(appointment ->{
-                        // TODO: add appointment details
+                    var appointments = appointmentsService.findAllAccepted();
+                    appointments.forEach(appointment -> {
+                        StringJoiner joiner = new StringJoiner("", "\n", " ");
+                        joiner.add("Appointment ID: " + appointment.getId());
+                        joiner.add("\nProvider ID: " + appointment.getServiceProvider().getId()
+                                + " Name:" + appointment.getServiceProvider().getFirstName() + " "
+                                + appointment.getServiceProvider().getLastName());
+                        joiner.add("\nClient ID: " + appointment.getUser().getId()
+                                + " Name:" + appointment.getUser().getFirstName() + " "
+                                + appointment.getUser().getLastName());
+                        joiner.add("\nDate: " + appointment.getCreated()
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        joiner.add("Post:  ID: " + appointment.getPost().getId() + " "
+                                + appointment.getPost().getName());
                     });
                     return "";
                 }),
                 new Menu.Option("List all FINISHED", () -> {
-                        // TODO: add appointment details
+                    var appointments = appointmentsService.findAllFinished();
+                    appointments.forEach(appointment -> {
+                        StringJoiner joiner = new StringJoiner("", "\n", " ");
+                        joiner.add("Appointment ID: " + appointment.getId());
+                        joiner.add("\nProvider ID: " + appointment.getServiceProvider().getId()
+                                + " Name:" + appointment.getServiceProvider().getFirstName() + " "
+                                + appointment.getServiceProvider().getLastName());
+                        joiner.add("\nClient ID: " + appointment.getUser().getId()
+                                + " Name:" + appointment.getUser().getFirstName() + " "
+                                + appointment.getUser().getLastName());
+                        joiner.add("\nDate: " + appointment.getCreated()
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        joiner.add("Post:  ID: " + appointment.getPost().getId() + " "
+                                + appointment.getPost().getName());
+                    });
                     return "";
                 }),
                 new Menu.Option("List all DECLINED", () -> {
-                    // TODO: add appointment details
+                    var appointments = appointmentsService.findAllDeclined();
+                    appointments.forEach(appointment -> {
+                        StringJoiner joiner = new StringJoiner("", "\n", " ");
+                        joiner.add("Appointment ID: " + appointment.getId());
+                        joiner.add("\nProvider ID: " + appointment.getServiceProvider().getId()
+                                + " Name:" + appointment.getServiceProvider().getFirstName() + " "
+                                + appointment.getServiceProvider().getLastName());
+                        joiner.add("\nClient ID: " + appointment.getUser().getId()
+                                + " Name:" + appointment.getUser().getFirstName() + " "
+                                + appointment.getUser().getLastName());
+                        joiner.add("\nDate: " + appointment.getCreated()
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        joiner.add("Post:  ID: " + appointment.getPost().getId() + " "
+                                + appointment.getPost().getName());
+                    });
                     return "";
                 }),
                 new Menu.Option("List all for User", () -> {
@@ -63,28 +111,32 @@ public class AppointmentController {
                         } catch (NonexistingEntityException e) {
                             e.printStackTrace();
                         }
-                    }while (true);
+                    } while (true);
                     appointmentsForUser(user);
                     return "";
                 })
-
         ));
         menu.show();
     }
 
-    public void appointmentsForUser(User user){
+    public void appointmentsForUser(User user) {
         System.out.println("Appointments for: " + user.getFirstName() + " " + user.getLastName());
         var menu = new Menu("Admin Menu", List.of(
                 new Menu.Option("List all PENDING", () -> {
-                    Collection<Appointments> appointments = null;
+                    Collection<Appointments> appointments;
                     try {
                         appointments = appointmentsService.findAllPendingForUser(user.getId());
-                        appointments.forEach(appointment ->{
+                        appointments.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add("Appointment ID: " + appointment.getId());
-                            joiner.add("Provider: " + appointment.getServiceProvider().getFirstName() + " "
-                                    + appointment.getServiceProvider().getLastName());
-                            // TODO: add appointment details
+                            joiner.add("State: " + appointment.getState());
+                            joiner.add("\nClient ID: " + appointment.getUser().getId() + " Name:"
+                                    + appointment.getUser().getFirstName() + " "
+                                    + appointment.getUser().getLastName());
+                            joiner.add("Date: " + appointment.getCreated()
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                            joiner.add("Post:  ID: " + appointment.getPost().getId() + " "
+                                    + appointment.getPost().getName());
                         });
                     } catch (NonexistingEntityException e) {
                         System.out.println(e.getMessage());
@@ -95,42 +147,65 @@ public class AppointmentController {
                     Collection<Appointments> appointments = null;
                     try {
                         appointments = appointmentsService.findAllAcceptedForUser(user.getId());
-                        appointments.forEach(appointment ->{
-                            // TODO: add appointment details
+                        appointments.forEach(appointment -> {
+                            StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("Appointment ID: " + appointment.getId());
+                            joiner.add("State: " + appointment.getState());
+                            joiner.add("\nClient ID: " + appointment.getUser().getId() + " Name:"
+                                    + appointment.getUser().getFirstName() + " "
+                                    + appointment.getUser().getLastName());
+                            joiner.add("Date: " + appointment.getCreated()
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                            joiner.add("Post:  ID: " + appointment.getPost().getId() + " "
+                                    + appointment.getPost().getName());
                         });
                     } catch (NonexistingEntityException e) {
                         System.out.println(e.getMessage());
                     }
-
                     return "";
                 }),
                 new Menu.Option("List all FINISHED", () -> {
                     Collection<Appointments> appointments = null;
                     try {
                         appointments = appointmentsService.findAllFinishedForUser(user.getId());
-                        appointments.forEach(appointment ->{
-                            // TODO: add appointment details
+                        appointments.forEach(appointment -> {
+                            StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("Appointment ID: " + appointment.getId());
+                            joiner.add("State: " + appointment.getState());
+                            joiner.add("\nClient ID: " + appointment.getUser().getId() + " Name:"
+                                    + appointment.getUser().getFirstName() + " "
+                                    + appointment.getUser().getLastName());
+                            joiner.add("Date: " + appointment.getCreated()
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                            joiner.add("Post:  ID: " + appointment.getPost().getId() + " "
+                                    + appointment.getPost().getName());
                         });
                     } catch (NonexistingEntityException e) {
                         System.out.println(e.getMessage());
                     }
-
                     return "";
                 }),
                 new Menu.Option("List all DECLINED", () -> {
                     Collection<Appointments> appointments = null;
                     try {
                         appointments = appointmentsService.findAllDeclinedForUser(user.getId());
-                        appointments.forEach(appointment ->{
-                            // TODO: add appointment details
+                        appointments.forEach(appointment -> {
+                            StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("Appointment ID: " + appointment.getId());
+                            joiner.add("State: " + appointment.getState());
+                            joiner.add("\nClient ID: " + appointment.getUser().getId() + " Name:"
+                                    + appointment.getUser().getFirstName() + " "
+                                    + appointment.getUser().getLastName());
+                            joiner.add("Date: " + appointment.getCreated()
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                            joiner.add("Post:  ID: " + appointment.getPost().getId() + " "
+                                    + appointment.getPost().getName());
                         });
                     } catch (NonexistingEntityException e) {
                         System.out.println(e.getMessage());
                     }
-
                     return "";
                 })
-
         ));
         menu.show();
     }

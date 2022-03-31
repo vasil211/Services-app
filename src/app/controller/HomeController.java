@@ -52,11 +52,70 @@ public class HomeController {
             ));
             menu.show();
         } else if (user.getRole() == Role.MODERATOR) {
-
+            var menu = new Menu("User Menu", List.of(
+                    new Menu.Option("Browse applications", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Browse posts", () -> {
+                        // TODO: make deleted applications, posts and comments in database
+                        return "";
+                    }),
+                    new Menu.Option("Browse comments", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Browse for service", () -> {
+                        // TODO: fill
+                        return "";
+                    })
+            ));
+            menu.show();
         } else if (user.getRole() == Role.SERVICE_PROVIDER) {
-
+            var menu = new Menu("User Menu", List.of(
+                    new Menu.Option("Appointments", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Messages", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Menage Posts", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Add post", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Back to user view", () -> {
+                        // TODO: fill
+                        return "";
+                    })
+                    // TODO: MORE
+            ));
+            menu.show();
         } else if (user.getRole() == Role.USER) {
-
+            var menu = new Menu("User Menu", List.of(
+                    new Menu.Option("Browse for service", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Messages", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Appointments", () -> {
+                        // TODO: fill
+                        return "";
+                    }),
+                    new Menu.Option("Menage personal data", () -> {
+                        // TODO: fill    add   Apply to become provider
+                        return "";
+                    })
+            ));
+            menu.show();
         }
     }
 }

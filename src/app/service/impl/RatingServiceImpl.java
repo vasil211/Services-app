@@ -1,18 +1,14 @@
 package app.service.impl;
 
 import app.dao.RatingRepository;
-import app.exeption.ConstraintViolation;
 import app.exeption.ConstraintViolationException;
 import app.exeption.NonexistingEntityException;
-import app.model.Post;
 import app.model.Rating;
-import app.model.User;
 import app.service.RatingService;
 import app.service.validators.RatingValidation;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class RatingServiceImpl implements RatingService {
@@ -109,5 +105,26 @@ public class RatingServiceImpl implements RatingService {
     @Override
     public Long countForUser(Long id) {
         return ratingRepo.countForUser(id);
+    }
+
+    @Override
+    public Collection<Rating> getAllRatingsForPost(long id) throws NonexistingEntityException {
+        var ratings = ratingRepo.findAllRatingsForPost(id);
+        if (ratings.isEmpty()) throw new NonexistingEntityException("No ratings for this post");
+        return ratings;
+    }
+
+    @Override
+    public Collection<Rating> getAllRatingsForUser(long id) throws NonexistingEntityException{
+        var ratings = ratingRepo.findAllRatingsForUser(id);
+        if (ratings.isEmpty()) throw new NonexistingEntityException("No ratings for this user");
+        return ratings;
+    }
+
+    @Override
+    public Collection<Rating> getAllRatingsFromUser(long id) throws NonexistingEntityException {
+        var ratings = ratingRepo.findAllRatingsFromUser(id);
+        if (ratings.isEmpty()) throw new NonexistingEntityException("No ratings for this user");
+        return ratings;
     }
 }
