@@ -15,4 +15,12 @@ public interface RatingRepository extends Repository<Long, Rating>{
     Collection<Rating> findAllRatingsForUser(long id);
 
     Collection<Rating> findAllRatingsFromUser(long id);
+
+    Collection<Rating> findAllDeleted();
+    boolean deleteByIdEpx(Long id, String explanation);
+    boolean markAsModerated(Long id);
+
+    Collection<Rating> getAllUnmoderated();
+
+    Collection<Rating> getAllModerated();
 }

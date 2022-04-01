@@ -15,7 +15,6 @@ import app.view.Menu;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class PostsController {
     private final CategoryService categoryService;
@@ -171,6 +170,24 @@ public class PostsController {
                     });
                     return "";
                 }),
+                new Menu.Option("List all Deleted posts", () -> {
+                    var posts = postService.getAllDeleted();
+                    posts.forEach(post -> {
+                        var average = postService.calculateRatingForPost(post.getId());
+                        StringJoiner sj = new StringJoiner(", ", "", "");
+                        sj.add("id: " + post.getId().toString());
+                        sj.add("category: " + post.getCategory().getName());
+                        sj.add("name: " + post.getName());
+                        sj.add("user: " + post.getUser().getFirstName() + " " + post.getUser().getLastName());
+                        sj.add("\ninformation: " + post.getInfo());
+                        sj.add("\nrating: " + average);
+                        sj.add("\ncreated: " + post.getCreated().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+                        sj.add("last modified: " + post.getModified().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+                        System.out.println("Deleted Posts: ");
+                        System.out.println(sj);
+                    });
+                    return "";
+                }),
                 new Menu.Option("Get User's posts with comments", () -> {
                     String idStr;
                     Long id = 0L;
@@ -222,17 +239,16 @@ public class PostsController {
                 new Menu.Option("Delete post", () -> {
                     String idStr;
                     long id;
-                    System.out.println("YOU WILL DELETE ALL RATINGS AND COMMENTS IN THIS POST BY DELETING IT!!!");
-                    System.out.println("type 'i understand' to continue");
-                    String answer = scanner.nextLine();
-                    if (answer.equals("i understand")) {
-                        return "";
-                    }
                     try {
                         System.out.println("Enter id of post you want to delete:");
                         idStr = scanner.nextLine();
                         id = Long.parseLong(idStr);
-                        postService.deletePostById(id);
+                        var post = postService.getPostById(id);
+                        Scanner sc = new Scanner(System.in);
+                        System.out.println("Enter explanation: ");
+                        String explanation = sc.nextLine();
+                        postService.deletePostById(id, explanation);
+
                     } catch (NumberFormatException | NonexistingEntityException e) {
                         System.out.println(e.getMessage());
                     }
@@ -240,5 +256,133 @@ public class PostsController {
                 })
         ));
         menu.show();
+    }
+
+    public void moderatePostsMenu() {
+        Scanner sc = new Scanner(System.in);
+        var menu = new Menu("Posts Menu", List.of(
+                new Menu.Option("Browse un-moderated posts", () -> {
+                    try {
+                        browseUnmoderatedPosts();
+                    } catch (Exception e) {
+                        System.out.println("");
+                    }
+                    return "";
+                }),
+                new Menu.Option("Browse moderated posts", () -> {
+                    try {
+                        browseModeratedPosts();
+                    } catch (Exception e) {
+                        System.out.println("");
+                    }
+                    return "";
+                }),
+                new Menu.Option("List deleted posts", () -> {
+                    postService.getAllDeleted().forEach(post -> {
+                        StringJoiner sj = new StringJoiner(", ", "\n", "");
+                        sj.add("\nID: " + post.getId());
+                        sj.add("\nFrom user - ID: " + post.getUser().getId() + " "
+                                + post.getUser().getFirstName()
+                                + " " + post.getUser().getLastName());
+                        sj.add("\nTitle: " + post.getName());
+                        sj.add("\nInfo: " + post.getInfo());
+                        sj.add("\nDeleted on: " + post.getModified()
+                                .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                        sj.add("\nReason for deletion: " + post.getDeletedReason());
+                        System.out.println(sj);
+                    });
+                    return "";
+                })
+        ));
+        menu.show();
+    }
+
+    public void browseUnmoderatedPosts() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Posts: \n");
+        var posts = postService.getAllUnmoderated();
+        posts.forEach(post -> {
+            StringJoiner sj = new StringJoiner(", ", "\n", "");
+            sj.add("\nID: " + post.getId());
+            sj.add("\nFrom user - ID: " + post.getUser().getId() + " "
+                    + post.getUser().getFirstName()
+                    + " " + post.getUser().getLastName());
+            sj.add("\nTitle: " + post.getName());
+            sj.add("\nInfo: " + post.getInfo());
+            sj.add("\nCreated: " + post.getCreated().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+            sj.add("\nModified: " + post.getModified().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+            System.out.println(sj);
+            System.out.println("");
+            var menu = new Menu("Moderate post", List.of(
+                    new Menu.Option("Go to next, and mark as moderated", () -> {
+                        System.out.println("Do you approve this post? (yes/no)");
+                        String answer = sc.nextLine();
+                        if (answer.equals("yes")) {
+                            postService.markAsModerated(post.getId());
+                            return "";
+                        }
+                        return "Post skipped";
+                    }),
+                    new Menu.Option("Delete post, and add explanation", () -> {
+                        try {
+                            System.out.println("Type 'DELETE' to confirm: ");
+                            String confirm = sc.nextLine();
+                            if (confirm.equals("DELETE")) {
+                                System.out.println("Enter explanation: ");
+                                String explanation = sc.nextLine();
+                                postService.deletePostById(post.getId(), explanation);
+                                System.out.println("Post deleted");
+                            }
+                        } catch (NonexistingEntityException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        return "";
+                    })
+            ));
+            var check = menu.showForForEach();
+            if (check) throw new RuntimeException();
+        });
+    }
+
+    public void browseModeratedPosts() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Posts: \n");
+        var posts = postService.getAllModerated();
+        posts.forEach(post -> {
+            StringJoiner sj = new StringJoiner(", ", "\n", "");
+            sj.add("\nID: " + post.getId());
+            sj.add("\nFrom user - ID: " + post.getUser().getId() + " "
+                    + post.getUser().getFirstName()
+                    + " " + post.getUser().getLastName());
+            sj.add("\nTitle: " + post.getName());
+            sj.add("\nInfo: " + post.getInfo());
+            sj.add("\nCreated: " + post.getCreated().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+            sj.add("\nModerated on: " + post.getModified().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+            System.out.println(sj);
+            System.out.println("");
+            var menu = new Menu("Browse moderated posts", List.of(
+                    new Menu.Option("Go to next, and mark as moderated", () -> {
+                        postService.markAsModerated(post.getId());
+                        return "";
+                    }),
+                    new Menu.Option("Delete post, and add explanation", () -> {
+                        try {
+                            System.out.println("Type 'DELETE' to confirm: ");
+                            String confirm = sc.nextLine();
+                            if (confirm.equals("DELETE")) {
+                                System.out.println("Enter explanation: ");
+                                String explanation = sc.nextLine();
+                                postService.deletePostById(post.getId(), explanation);
+                                System.out.println("Post deleted");
+                            }
+                        } catch (NonexistingEntityException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        return "";
+                    })
+            ));
+            var check = menu.showForForEach();
+            if (check) throw new RuntimeException();
+        });
     }
 }

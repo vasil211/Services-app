@@ -15,6 +15,7 @@ public class Message implements Identifiable<Long> {
     private String message;
     private LocalDateTime sent;
 
+
     public Message() {
     }
 
@@ -27,6 +28,8 @@ public class Message implements Identifiable<Long> {
         this.message = message;
         this.sent = sent;
     }
+
+
 
     public Long getSender() {
         return sender;

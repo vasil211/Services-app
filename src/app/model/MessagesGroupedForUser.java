@@ -1,8 +1,9 @@
 package app.model;
 
 import java.time.LocalDateTime;
+import java.util.StringJoiner;
 
-public class MessagesGroupedByUser {
+public class MessagesGroupedForUser {
     private Long id;
     private String firstName;
     private String LastName;
@@ -10,11 +11,11 @@ public class MessagesGroupedByUser {
     private Long userId;
     private Long service_providerId;
     private String name;
-
-    public MessagesGroupedByUser() {
+    private Long count;
+    public MessagesGroupedForUser() {
     }
 
-    public MessagesGroupedByUser(Long id, String firstName, String lastName, LocalDateTime sent, Long userId, Long service_providerId, String name) {
+    public MessagesGroupedForUser(Long id, String firstName, String lastName, LocalDateTime sent, Long userId, Long service_providerId, String name) {
         this.id = id;
         this.firstName = firstName;
         LastName = lastName;
@@ -23,7 +24,13 @@ public class MessagesGroupedByUser {
         this.service_providerId = service_providerId;
         this.name = name;
     }
+    public Long getCount() {
+        return count;
+    }
 
+    public void setCount(Long count) {
+        this.count = count;
+    }
     public Long getId() {
         return id;
     }
@@ -78,5 +85,19 @@ public class MessagesGroupedByUser {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", MessagesGroupedForUser.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("firstName='" + firstName + "'")
+                .add("LastName='" + LastName + "'")
+                .add("sent=" + sent)
+                .add("userId=" + userId)
+                .add("service_providerId=" + service_providerId)
+                .add("name='" + name + "'")
+                .add("count=" + count)
+                .toString();
     }
 }

@@ -3,7 +3,7 @@ package app.service.impl;
 import app.dao.MessageRepository;
 import app.exeption.InvalidEntityDataException;
 import app.model.Message;
-import app.model.MessagesGroupedByUser;
+import app.model.MessagesGroupedForUser;
 import app.service.MessageService;
 
 import java.util.Collection;
@@ -25,13 +25,13 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Collection<MessagesGroupedByUser> messagesGroupedForUser(Long provider_id, Long user_id) {
-        return  messageRepo.messagesGroupedForUser(provider_id, user_id);
+    public Collection<MessagesGroupedForUser> messagesGroupedForUser(Long user_id) {
+        return  messageRepo.messagesGroupedForUser(user_id);
     }
 
     @Override
-    public Collection<MessagesGroupedByUser> messagesGroupedForProvider(Long provider_id, Long user_id) {
-        return messageRepo.messagesGroupedForProvider(provider_id, user_id);
+    public Collection<MessagesGroupedForUser> messagesGroupedForProvider(Long provider_id) {
+        return messageRepo.messagesGroupedForProvider(provider_id);
     }
 
     @Override

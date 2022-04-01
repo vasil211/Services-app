@@ -12,6 +12,7 @@ public class Post implements Identifiable<Long> {
     private String info;
     private LocalDateTime created;
     private LocalDateTime modified;
+    private String DeletedReason;
 
     public Post() {
     }
@@ -24,6 +25,14 @@ public class Post implements Identifiable<Long> {
         this.info = info;
         this.created = created;
         this.modified = modified;
+    }
+
+    public String getDeletedReason() {
+        return DeletedReason;
+    }
+
+    public void setDeletedReason(String deletedReason) {
+        DeletedReason = deletedReason;
     }
 
     public Long getId() {

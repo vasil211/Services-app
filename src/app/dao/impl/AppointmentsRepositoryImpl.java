@@ -2,9 +2,6 @@ package app.dao.impl;
 
 import app.dao.AppointmentsRepository;
 import app.model.Appointments;
-import app.model.Category;
-import app.model.Post;
-import app.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -36,11 +33,12 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
 
     // Method to change the status of an appointment to "DECLINED" from database
     @Override
-    public boolean declineAppointment(Long id) {
+    public boolean declineAppointment(Long id, String reason) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "update appointments set state = 'DECLINED' where id= ?");
-            preparedStatement.setLong(1, id);
+                    "update appointments set state = 'DECLINED', decline_comment = ? where id= ?");
+            preparedStatement.setString(1, reason);
+            preparedStatement.setLong(2, id);
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -119,7 +117,8 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
     public Appointments create(Appointments entity) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO services.appointments (service_provider_id, user_id, post_id, state, address, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO services.appointments (service_provider_id, user_id, post_id, " +
+                            "state, address, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setLong(1, entity.getServiceProvider().getId());
             preparedStatement.setLong(2, entity.getUser().getId());
@@ -144,7 +143,8 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
     public Appointments update(Appointments entity) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "UPDATE services.appointments SET service_provider_id=?, user_id=?, post_id=?, state=?, address=?, created=?, modified=? WHERE id=?");
+                    "UPDATE services.appointments SET service_provider_id=?, user_id=?, post_id=?," +
+                            " state=?, address=?, created=?, modified=? WHERE id=?");
             preparedStatement.setLong(1, entity.getServiceProvider().getId());
             preparedStatement.setLong(2, entity.getUser().getId());
             preparedStatement.setLong(3, entity.getPost().getId());
@@ -197,7 +197,8 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
         Long count = 0L;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT COUNT(*) FROM services.appointments WHERE service_provider_id = ? AND state = 'FINISHED'");
+                    "SELECT COUNT(*) FROM services.appointments WHERE service_provider_id = ? " +
+                            "AND state = 'FINISHED'");
             preparedStatement.setLong(1, serviceProviderId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -209,7 +210,8 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
         return count;
     }
 
-    // Method to get all appointments from database where service provider id is equal to id and state is equal to "PENDING"
+    // Method to get all appointments from database where service provider id is equal
+    // to id and state is equal to "PENDING"
     @Override
     public Collection<Appointments> findAllPendingForUser(Long serviceProviderId) {
         Collection<Appointments> appointments = new ArrayList<>();
@@ -236,7 +238,8 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
         return appointments;
     }
 
-    // Method to get all appointments from database where service provider id is equal to id and state is equal to "ACCEPTED"
+    // Method to get all appointments from database where service provider id is equal to id
+    // and state is equal to "ACCEPTED"
     @Override
     public Collection<Appointments> findAllAcceptedForUser(Long serviceProviderId) {
         Collection<Appointments> appointments = new ArrayList<>();
@@ -262,7 +265,8 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
         }
         return appointments;
     }
-    // Method to get all appointments from database where service provider id is equal to id and state is equal to "DECLINED"
+    // Method to get all appointments from database where service provider id is equal to id
+    // and state is equal to "DECLINED"
     @Override
     public Collection<Appointments> findAllDeclinedForUser(Long serviceProviderId) {
         Collection<Appointments> appointments = new ArrayList<>();
@@ -288,13 +292,15 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
         }
         return appointments;
     }
-    // Method to get all appointments from database where service provider id is equal to id and state is equal to "FINISHED"
+    // Method to get all appointments from database where service provider id is equal to id
+    // and state is equal to "FINISHED"
     @Override
     public Collection<Appointments> findAllFinishedForUser(Long serviceProviderId) {
         Collection<Appointments> appointments = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT * FROM services.appointments WHERE  state = 'FINISHED'");
+                    "SELECT * FROM services.appointments WHERE service_provider_id = ? AND state = 'FINISHED'");
+            preparedStatement.setLong(1, serviceProviderId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 Appointments appointment = new Appointments();

@@ -27,6 +27,11 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
+    public Collection<Rating> getAllDeleted() {
+        return ratingRepo.findAllDeleted();
+    }
+
+    @Override
     public Collection<Rating> getAllForUser(Long id) throws NonexistingEntityException {
         var ratings = ratingRepo.findAllForUser(id);
         if (ratings.isEmpty()) throw new NonexistingEntityException("No ratings for this user");
@@ -88,8 +93,8 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public boolean deleteRatingById(Long id) throws NonexistingEntityException {
-        if (!ratingRepo.deleteById(id)) {
+    public boolean deleteRatingById(Long id, String explanation) throws NonexistingEntityException {
+        if (!ratingRepo.deleteByIdEpx(id, explanation)) {
             throw new NonexistingEntityException("This rating does not exists!");
         }
         return true;
@@ -126,5 +131,20 @@ public class RatingServiceImpl implements RatingService {
         var ratings = ratingRepo.findAllRatingsFromUser(id);
         if (ratings.isEmpty()) throw new NonexistingEntityException("No ratings for this user");
         return ratings;
+    }
+
+    @Override
+    public boolean markAsModerated(Long id) {
+        return ratingRepo.markAsModerated(id);
+    }
+
+    @Override
+    public Collection<Rating> getAllUnmoderated() {
+        return ratingRepo.getAllUnmoderated();
+    }
+
+    @Override
+    public Collection<Rating> getAllModerated() {
+        return ratingRepo.getAllModerated();
     }
 }

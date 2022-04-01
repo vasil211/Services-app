@@ -30,6 +30,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public Collection<Post> getAllDeleted() {
+        return postRepo.findAllDeleted();
+    }
+
+    @Override
     public Collection<Post> getAllPostsByUser(Long id) throws NonexistingEntityException {
         var posts = postRepo.getAllPostsByUser(id);
         if (posts == null) {
@@ -110,12 +115,12 @@ public class PostServiceImpl implements PostService {
 
     //Method to delete Post
     @Override
-    public boolean deletePostById(Long id) throws NonexistingEntityException {
+    public boolean deletePostById(Long id, String explanation) throws NonexistingEntityException {
         var postToDelete = postRepo.findById(id);
         if (postToDelete == null) {
             throw new NonexistingEntityException("Post with id " + id + " does not exist");
         }
-        postRepo.deleteById(id);
+        postRepo.deleteByIdExpl(id, explanation);
         return true;
     }
 
@@ -160,5 +165,20 @@ public class PostServiceImpl implements PostService {
             throw new NonexistingEntityException("No posts found in this category");
         }
         return posts;
+    }
+
+    @Override
+    public Collection<Post> getAllUnmoderated() {
+        return postRepo.getAllUnmoderated();
+    }
+
+    @Override
+    public boolean markAsModerated(Long id) {
+        return postRepo.markAsModerated(id);
+    }
+
+    @Override
+    public Collection<Post> getAllModerated() {
+        return postRepo.getAllModerated();
     }
 }

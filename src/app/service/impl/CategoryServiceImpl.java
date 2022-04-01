@@ -7,7 +7,6 @@ import app.model.Category;
 import app.service.CategoryService;
 
 import java.util.Collection;
-import java.util.Scanner;
 
 public class CategoryServiceImpl implements CategoryService {
 

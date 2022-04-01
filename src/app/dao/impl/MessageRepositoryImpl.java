@@ -2,8 +2,7 @@ package app.dao.impl;
 
 import app.dao.*;
 import app.model.Message;
-import app.model.MessagesGroupedByUser;
-import app.model.Post;
+import app.model.MessagesGroupedForUser;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -65,14 +64,20 @@ class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public Collection<MessagesGroupedByUser> messagesGroupedForUser(Long provider_id, Long user_id) {
-        List<MessagesGroupedByUser> messages = new ArrayList<>();
+    public Collection<MessagesGroupedForUser> messagesGroupedForUser(Long user_id) {
+        List<MessagesGroupedForUser> messages = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT users.first_name, users.last_name, messages.sent, messages.user_id, messages.service_provider_id, posts.name FROM messages join users on messages.service_provider_id = users.id join posts on messages.post_id = posts.id  where messages.service_provider_id = ?  group by user_id  ");
-            preparedStatement.setLong(1, provider_id);
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement("SELECT COUNT(*),users.first_name, users.last_name,"
+                            + " messages.sent, messages.user_id, "
+                            + " messages.service_provider_id, posts.name FROM messages join users"
+                            + " on messages.service_provider_id = users.id join posts"
+                            + " on messages.post_id = posts.id"
+                            + " where messages.service_provider_id = ?  group by messages.user_id");
+            preparedStatement.setLong(1, user_id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
-                MessagesGroupedByUser message = new MessagesGroupedByUser();
+                MessagesGroupedForUser message = new MessagesGroupedForUser();
                 message.setId(rs.getLong("id"));
                 message.setSent(rs.getTimestamp("sent").toLocalDateTime());
                 message.setFirstName(rs.getString("first_name"));
@@ -81,6 +86,7 @@ class MessageRepositoryImpl implements MessageRepository {
                 message.setUserId(rs.getLong("user_id"));
                 message.setService_providerId(rs.getLong("service_provider_id"));
                 message.setName(rs.getString("name"));
+                message.setCount(rs.getLong("count(*)"));
                 messages.add(message);
             }
         } catch (SQLException e) {
@@ -90,21 +96,27 @@ class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public Collection<MessagesGroupedByUser> messagesGroupedForProvider(Long provider_id, Long user_id) {
-        List<MessagesGroupedByUser> messages = new ArrayList<>();
+    public Collection<MessagesGroupedForUser> messagesGroupedForProvider(Long provider_id) {
+        List<MessagesGroupedForUser> messages = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT users.first_name, users.last_name, messages.sent, messages.user_id, messages.service_provider_id, posts.name FROM messages join users on messages.service_provider_id = users.id join posts on messages.post_id = posts.id  where messages.user_id = ?  group by messages.service_provider_id");
-            preparedStatement.setLong(1, user_id);
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement("SELECT COUNT(*),users.first_name, users.last_name,"
+                            + " messages.sent, messages.user_id, "
+                            + " messages.service_provider_id, posts.name FROM messages join users"
+                            + " on messages.user_id = users.id join posts"
+                            + " on messages.post_id = posts.id"
+                            + " where messages.service_provider_id = ? group by messages.user_id ");
+            preparedStatement.setLong(1, provider_id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
-                MessagesGroupedByUser message = new MessagesGroupedByUser();
-                message.setId(rs.getLong("id"));
+                MessagesGroupedForUser message = new MessagesGroupedForUser();
                 message.setFirstName(rs.getString("first_name"));
                 message.setLastName(rs.getString("last_name"));
                 message.setSent(rs.getTimestamp("sent").toLocalDateTime());
                 message.setUserId(rs.getLong("user_id"));
                 message.setService_providerId(rs.getLong("service_provider_id"));
                 message.setName(rs.getString("name"));
+                message.setCount(rs.getLong("count(*)"));
                 messages.add(message);
             }
         } catch (SQLException e) {
@@ -112,6 +124,7 @@ class MessageRepositoryImpl implements MessageRepository {
         }
         return messages;
     }
+
     @Override
     public Collection<Message> messagesChat(Long provider_id, Long user_id) {
         List<Message> messages = new ArrayList<>();

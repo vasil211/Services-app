@@ -136,4 +136,42 @@ public class Menu {
             }
         }
     }
+    public boolean showForForEach() {
+        while(true) {
+            System.out.printf("\nMENU: %s%n", title);
+            for (int i = 0; i < options.size(); i++) {
+                System.out.printf("%2d. %s%n", i + 1, options.get(i).getText());
+            }
+//            var iter = options.listIterator(options.size());
+//            var i = 1;
+//            while (iter.hasPrevious()) {
+//                System.out.printf("%2d. %s%n", i++, iter.previous().getText());
+//            }
+            int choice = -1;
+            do {
+                System.out.printf("Enter your choice (1 - %s):", options.size());
+                var choiceStr = scanner.nextLine();
+                try {
+                    choice = Integer.parseInt(choiceStr);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Error: Invalid choice. Please enter a valid number between 1 and " + options.size());
+                }
+            } while (choice < 1 || choice > options.size());
+            String result = null;
+            try {
+                if(choice == options.size()) { // Exit command chosen
+                    return true;
+                }
+                result = options.get(choice - 1).getCommand().execute();
+                break;
+            } catch (InvalidEntityDataException e) {
+                System.out.println("Error: " + e.getMessage());;
+            }
+
+            if(choice == options.size()) { // Exit command chosen
+                return true;
+            }
+        }
+        return false;
+    }
 }

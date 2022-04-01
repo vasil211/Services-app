@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public interface AppointmentsRepository extends Repository<Long, Appointments> {
     boolean acceptAppointment(Long id);
-    boolean declineAppointment(Long id);
+    boolean declineAppointment(Long id, String reason);
     boolean finishAppointment(Long id);
     Long countFinishedForProvider(Long serviceProviderId);
     Collection<Appointments> findAllPendingForUser(Long serviceProviderId);

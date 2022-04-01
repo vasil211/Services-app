@@ -1,16 +1,13 @@
 package app.service.impl;
 
 import app.dao.AppointmentsRepository;
-import app.dao.CategoryRepository;
 import app.exeption.InvalidEntityDataException;
 import app.exeption.NonexistingEntityException;
 import app.model.Appointments;
-import app.model.Post;
 import app.service.AppointmentsService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Scanner;
 
 public class AppointmentsServiceImpl implements AppointmentsService {
     private final AppointmentsRepository appointmentsRepo;
@@ -36,8 +33,8 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     @Override
-    public boolean declineAppointment(Long id) {
-        return appointmentsRepo.declineAppointment(id);
+    public boolean declineAppointment(Long id, String reason) {
+        return appointmentsRepo.declineAppointment(id, reason);
     }
 
     @Override

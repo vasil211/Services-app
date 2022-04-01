@@ -28,7 +28,7 @@ class PostRepositoryImpl implements PostRepository {
         List<Post> posts = new ArrayList<>();
         try {
             Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT * FROM services.posts");
+            ResultSet rs = statement.executeQuery("SELECT * FROM services.posts where deleted = false");
             while (rs.next()) {
                 Post post = new Post();
                 post.setId(rs.getLong("id"));
@@ -36,6 +36,97 @@ class PostRepositoryImpl implements PostRepository {
                 post.setCategory(categoryRepository.findById(rs.getLong("category_id")));
                 post.setName(rs.getString("name"));
                 post.setInfo(rs.getString("info"));
+
+                post.setDeletedReason(rs.getString("deleted_reason"));
+                post.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                post.setModified(rs.getTimestamp("modified").toLocalDateTime());
+                posts.add(post);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return posts;
+    }
+
+    @Override
+    public Collection<Post> findAllDeleted() {
+        List<Post> posts = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts " +
+                    "where deleted = true");
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Post post = new Post();
+                post.setId(rs.getLong("id"));
+                post.setUser(userRepository.findById(rs.getLong("user_id")));
+                post.setCategory(categoryRepository.findById(rs.getLong("category_id")));
+                post.setName(rs.getString("name"));
+                post.setInfo(rs.getString("info"));
+                post.setDeletedReason(rs.getString("deleted_reason"));
+                post.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                post.setModified(rs.getTimestamp("modified").toLocalDateTime());
+                posts.add(post);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return posts;
+    }
+
+    @Override
+    public Collection<Post> getAllUnmoderated() {
+        List<Post> posts = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts" +
+                    " where moderated = false");
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Post post = new Post();
+                post.setId(rs.getLong("id"));
+                post.setUser(userRepository.findById(rs.getLong("user_id")));
+                post.setCategory(categoryRepository.findById(rs.getLong("category_id")));
+                post.setName(rs.getString("name"));
+                post.setInfo(rs.getString("info"));
+                post.setDeletedReason(rs.getString("deleted_reason"));
+                post.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                post.setModified(rs.getTimestamp("modified").toLocalDateTime());
+                posts.add(post);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return posts;
+    }
+
+    @Override
+    public boolean markAsModerated(Long id) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("update posts set moderated = true "
+                    + "where id = ?");
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public Collection<Post> getAllModerated() {
+        List<Post> posts = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts" +
+                    " where moderated = true");
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Post post = new Post();
+                post.setId(rs.getLong("id"));
+                post.setUser(userRepository.findById(rs.getLong("user_id")));
+                post.setCategory(categoryRepository.findById(rs.getLong("category_id")));
+                post.setName(rs.getString("name"));
+                post.setInfo(rs.getString("info"));
+                post.setDeletedReason(rs.getString("deleted_reason"));
                 post.setCreated(rs.getTimestamp("created").toLocalDateTime());
                 post.setModified(rs.getTimestamp("modified").toLocalDateTime());
                 posts.add(post);
@@ -50,7 +141,8 @@ class PostRepositoryImpl implements PostRepository {
     public Post findById(Long id) {
         Post post = null;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts where id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts where id=?" +
+                    " and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
@@ -111,16 +203,24 @@ class PostRepositoryImpl implements PostRepository {
     @Override
     public boolean deleteById(Long id) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("delete from ratings where post_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("update posts set deleted = true " +
+                    "where id = ?");
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
+    }
+
+    @Override
+    public boolean deleteByIdExpl(Long id, String explanation) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("delete from posts where id=?");
-            preparedStatement.setLong(1, id);
+            PreparedStatement preparedStatement = connection.prepareStatement("update posts set deleted = true," +
+                    " deleted_reason = ? where id= ?");
+            preparedStatement.setString(1, explanation);
+            preparedStatement.setLong(2, id);
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -134,7 +234,7 @@ class PostRepositoryImpl implements PostRepository {
         long count = 0L;
         try {
             Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("select count(*) from posts");
+            ResultSet rs = statement.executeQuery("select count(*) from posts where deleted = false");
             rs.next();
             count = rs.getLong(1);
             return count;
@@ -148,7 +248,8 @@ class PostRepositoryImpl implements PostRepository {
     public Collection<Post> findByCategory(Long id) {
         List<Post> posts = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts where category_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts " +
+                    "where category_id=? and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -173,7 +274,8 @@ class PostRepositoryImpl implements PostRepository {
     public Collection<Post> getAllPostsByUser(Long id) {
         List<Post> posts = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts where user_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts " +
+                    "where user_id=? and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -197,7 +299,8 @@ class PostRepositoryImpl implements PostRepository {
     public Collection<Post> getAllPostsByCategory(Long id) {
         List<Post> posts = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts where category_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from posts " +
+                    "where category_id=?  and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
@@ -221,7 +324,8 @@ class PostRepositoryImpl implements PostRepository {
     public float calculateRatingForUser(Long id) {
         float rating = 0;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select avg(rating) from ratings where service_provider_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select avg(rating) from ratings " +
+                    "where service_provider_id=?  and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             rs.next();
@@ -232,12 +336,14 @@ class PostRepositoryImpl implements PostRepository {
         return rating;
     }
 
+
     // Method to count all posts from database where category_id is equal to id
     @Override
     public Long countPostsByCategory(Long id) {
         long count = 0L;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select count(*) from posts where category_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select count(*) from posts " +
+                    "where category_id= ? and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             rs.next();
@@ -254,7 +360,8 @@ class PostRepositoryImpl implements PostRepository {
     public Long countPostsByUser(Long id) {
         long count = 0L;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select count(*) from posts where user_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select count(*) from posts " +
+                    "where user_id=?  and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             rs.next();
@@ -271,7 +378,8 @@ class PostRepositoryImpl implements PostRepository {
     public float calculateRatingForPost(Long id) {
         float rating = 0;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select avg(rating) from ratings where post_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select avg(rating) from ratings" +
+                    " where post_id=?  and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             rs.next();

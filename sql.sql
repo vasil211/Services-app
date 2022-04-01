@@ -21,12 +21,16 @@ CREATE TABLE categories (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
+
 CREATE TABLE posts (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     category_id BIGINT NOT NULL,
     name VARCHAR(50) NOT NULL,
     info VARCHAR(250) NOT NULL,
+    deleted boolean default false,
+    deleted_reason varchar(250),
+    moderated boolean default false,
     created DATETIME default now(),
     modified DATETIME default now(),
     CONSTRAINT FOREIGN KEY (user_id)
@@ -50,6 +54,7 @@ CREATE TABLE messages (
     CONSTRAINT FOREIGN KEY (post_id)
         REFERENCES posts (id)
 );
+
 CREATE TABLE ratings (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     service_provider_id BIGINT NOT NULL,
@@ -57,6 +62,9 @@ CREATE TABLE ratings (
     post_id BIGINT NOT NULL,
     rating FLOAT NOT NULL,
     comment VARCHAR(250),
+	deleted boolean default false,
+    deleted_reasonx varchar(250),
+    moderated boolean default false,
     created DATETIME NOT NULL default now(),
     modified DATETIME  default now(),
     CONSTRAINT FOREIGN KEY (service_provider_id)
@@ -74,6 +82,7 @@ create table appointments(
     post_id BIGINT NOT NULL,
     address varchar(200) not null,
     state varchar(20) not null,
+    decline_comment varchar(250),
 	created DATETIME NOT NULL default now(),
     modified DATETIME  default now(),
     CONSTRAINT FOREIGN KEY (service_provider_id)
@@ -86,9 +95,9 @@ create table appointments(
 
 insert into users(role, user_name, password, email, first_name, last_name, phone,created)
 values("ADMIN", "admin", "4d1ace77931dbb1208607eb3ab594086", "admin@abv.bg", "AdminFirstName", "AdminLastName", "+359876547826", now()),
-("MODERATOR", "moderator", "ba97044edde4cc5625a0859c28ba0309", "moderator@abv.bg", "ModeratorFirstName", "ModeratorLastName", "+359876547826", now()),
-("SERVICE_PROVIDER", "serviceProvider", "4735cbfe2fa340cc4bea23f6812751db", "provider@abv.bg", "ProviderFirstName", "ProviderLastName", "+359876547826", now()),
-("USER", "admin", "c37c6474f327735b620b4d4a3f684560", "user@abv.bg", "UserFirstName", "UserLastName", "+359876547826", now());
+("MODERATOR", "moderator", "4d1ace77931dbb1208607eb3ab594086", "moderator@abv.bg", "ModeratorFirstName", "ModeratorLastName", "+359876547826", now()),
+("SERVICE_PROVIDER", "serviceProvider", "4d1ace77931dbb1208607eb3ab594086", "provider@abv.bg", "ProviderFirstName", "ProviderLastName", "+359876547826", now()),
+("USER", "admin", "4d1ace77931dbb1208607eb3ab594086", "user@abv.bg", "UserFirstName", "UserLastName", "+359876547826", now());
 
 insert into categories(name)
 values("Plumbing"),
@@ -108,6 +117,9 @@ values( 4, 3, 4, 2, "Hello! i need help", now()),
 
 insert into ratings(service_provider_id, user_id, post_id, rating, comment , created)
 values(3, 4, 2, 5.0, "Exelent work! Came rly fast", now());
+insert into ratings(service_provider_id, user_id, post_id, rating, comment , created)
+values(3, 4, 2, 4.0, "Good", now());
+
 
 insert into appointments(service_provider_id, user_id, post_id, address, state)
 values(3, 4, 2, "studentski grad, blok 4, ap.64", "FINISHED");

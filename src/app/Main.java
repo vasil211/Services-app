@@ -46,7 +46,7 @@ public class Main {
         AppointmentController appointmentController = new AppointmentController(appointmentsService, userService);
         RatingsController ratingsController = new RatingsController(ratingService);
         PostsController postsController = new PostsController(categoryService, postService, userService, categoryValidator, ratingService);
-        HomeController homeController = new HomeController(userService, adminController, appointmentsService, postService, postsController, appointmentController, ratingsController);
+        HomeController homeController = new HomeController(userService, adminController, appointmentsService, postService, postsController, appointmentController, ratingsController, messageService);
 
 
 

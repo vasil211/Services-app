@@ -13,7 +13,7 @@ public class Rating implements Identifiable<Long> {
     private String comment;
     private LocalDateTime created;
     private LocalDateTime modified;
-
+    private String DeletedReason;
 
     public Rating() {
     }
@@ -27,6 +27,14 @@ public class Rating implements Identifiable<Long> {
         this.comment = comment;
         this.created = created;
         this.modified = modified;
+    }
+
+    public String getDeletedReason() {
+        return DeletedReason;
+    }
+
+    public void setDeletedReason(String deletedReason) {
+        DeletedReason = deletedReason;
     }
 
     public LocalDateTime getModified() {

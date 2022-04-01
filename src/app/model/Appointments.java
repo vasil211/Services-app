@@ -15,7 +15,7 @@ public class Appointments implements Identifiable<Long> {
     private String address;
     private LocalDateTime created;
     private LocalDateTime updated;
-
+    private String declineComment;
     public Appointments() {
     }
 
@@ -29,6 +29,14 @@ public class Appointments implements Identifiable<Long> {
         this.address = address;
         this.created = created;
         this.updated = updated;
+    }
+
+    public String getDeclineComment() {
+        return declineComment;
+    }
+
+    public void setDeclineComment(String declineComment) {
+        this.declineComment = declineComment;
     }
 
     public String getAddress() {

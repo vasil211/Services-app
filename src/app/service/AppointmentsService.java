@@ -3,13 +3,12 @@ package app.service;
 import app.exeption.InvalidEntityDataException;
 import app.exeption.NonexistingEntityException;
 import app.model.Appointments;
-import app.model.Post;
 
 import java.util.Collection;
 
 public interface AppointmentsService {
     boolean acceptAppointment(Long id);
-    boolean declineAppointment(Long id);
+    boolean declineAppointment(Long id, String reason);
     boolean finishAppointment(Long id);
     Collection<Appointments> findAll();
     Collection<Appointments> findAllPendingForUser(Long serviceProviderId) throws NonexistingEntityException;
