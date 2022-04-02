@@ -301,7 +301,7 @@ public class PostsController {
         Scanner sc = new Scanner(System.in);
         System.out.println("Posts: \n");
         var posts = postService.getAllUnmoderated();
-        posts.forEach(post -> {
+        for(var post : posts){
             StringJoiner sj = new StringJoiner(", ", "\n", "");
             sj.add("\nID: " + post.getId());
             sj.add("\nFrom user - ID: " + post.getUser().getId() + " "
@@ -340,15 +340,15 @@ public class PostsController {
                     })
             ));
             var check = menu.showForForEach();
-            if (check) throw new RuntimeException();
-        });
+            if (check) break;
+        };
     }
 
     public void browseModeratedPosts() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Posts: \n");
         var posts = postService.getAllModerated();
-        posts.forEach(post -> {
+        for (var post : posts) {
             StringJoiner sj = new StringJoiner(", ", "\n", "");
             sj.add("\nID: " + post.getId());
             sj.add("\nFrom user - ID: " + post.getUser().getId() + " "
@@ -382,7 +382,8 @@ public class PostsController {
                     })
             ));
             var check = menu.showForForEach();
-            if (check) throw new RuntimeException();
-        });
+            if (check) break;
+        }
+        ;
     }
 }

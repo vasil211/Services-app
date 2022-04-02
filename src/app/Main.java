@@ -10,16 +10,7 @@ import app.service.validators.PostValidation;
 import app.service.validators.RatingValidation;
 import app.service.validators.UserValidation;
 import app.view.LoginView;
-
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import app.view.MessagesView;
 
 public class Main {
     public static void main(String[] args) {
@@ -46,7 +37,9 @@ public class Main {
         AppointmentController appointmentController = new AppointmentController(appointmentsService, userService);
         RatingsController ratingsController = new RatingsController(ratingService);
         PostsController postsController = new PostsController(categoryService, postService, userService, categoryValidator, ratingService);
-        HomeController homeController = new HomeController(userService, adminController, appointmentsService, postService, postsController, appointmentController, ratingsController, messageService);
+        MessagesView messagesView = new MessagesView(messageService);
+        MessagesController messagesController = new MessagesController(messagesView, messageService);
+        HomeController homeController = new HomeController(userService, adminController, appointmentsService, postService, postsController, appointmentController, ratingsController, messageService, messagesController);
 
 
 

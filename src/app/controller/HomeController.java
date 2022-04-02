@@ -20,7 +20,9 @@ public class HomeController {
     private final PostsController postsController;
     private final AppointmentController appointmentController;
     private final RatingsController ratingsController;
-    public HomeController(UserService userService, UserController userController, AppointmentsService appointmentsService, PostService postService, PostsController postsController, AppointmentController appointmentController, RatingsController ratingsController, MessageService messageService) {
+    private final MessagesController messagesController;
+
+    public HomeController(UserService userService, UserController userController, AppointmentsService appointmentsService, PostService postService, PostsController postsController, AppointmentController appointmentController, RatingsController ratingsController, MessageService messageService, MessagesController messagesController) {
         this.userService = userService;
         this.userController = userController;
         this.appointmentsService = appointmentsService;
@@ -29,10 +31,11 @@ public class HomeController {
         this.appointmentController = appointmentController;
         this.ratingsController = ratingsController;
         this.messageService = messageService;
+        this.messagesController = messagesController;
     }
 
     public void home(User user) {
-
+        var messages = new MessagesView(messageService);
         if (user.getRole() == Role.ADMIN) {
             var menu = new Menu("Admin Menu", List.of(
                     new Menu.Option("Manage Users Data", () -> {
@@ -69,11 +72,7 @@ public class HomeController {
                         return "";
                     }),
                     new Menu.Option("Browse comments", () -> {
-                        try {
                             ratingsController.moderateCommentsMenu();
-                        }catch (Exception e){
-                            System.out.print("");
-                        }
                         return "";
                     }),
                     new Menu.Option("Browse for service", () -> {
@@ -83,7 +82,6 @@ public class HomeController {
             ));
             menu.show();
         } else if (user.getRole() == Role.SERVICE_PROVIDER) {
-            var messages = new MessagesView(messageService);
             var menu = new Menu("Provider Menu", List.of(
                     new Menu.Option("Appointments", () -> {
                         appointmentController.providerAppointmentsMenu(user);
@@ -91,7 +89,6 @@ public class HomeController {
                     }),
                     new Menu.Option("Messages", () -> {
                         messages.show(user);
-                        // TODO: fill
                         return "";
                     }),
                     new Menu.Option("Menage Posts", () -> {
@@ -116,6 +113,7 @@ public class HomeController {
                         return "";
                     }),
                     new Menu.Option("Messages", () -> {
+                        messages.show(user);
                         // TODO: fill
                         return "";
                     }),

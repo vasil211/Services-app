@@ -97,7 +97,8 @@ insert into users(role, user_name, password, email, first_name, last_name, phone
 values("ADMIN", "admin", "4d1ace77931dbb1208607eb3ab594086", "admin@abv.bg", "AdminFirstName", "AdminLastName", "+359876547826", now()),
 ("MODERATOR", "moderator", "4d1ace77931dbb1208607eb3ab594086", "moderator@abv.bg", "ModeratorFirstName", "ModeratorLastName", "+359876547826", now()),
 ("SERVICE_PROVIDER", "serviceProvider", "4d1ace77931dbb1208607eb3ab594086", "provider@abv.bg", "ProviderFirstName", "ProviderLastName", "+359876547826", now()),
-("USER", "admin", "4d1ace77931dbb1208607eb3ab594086", "user@abv.bg", "UserFirstName", "UserLastName", "+359876547826", now());
+("USER", "userF", "4d1ace77931dbb1208607eb3ab594086", "user@abv.bg", "First User", "UserLastName", "+359876547826", now()),
+("USER", "userSec", "4d1ace77931dbb1208607eb3ab594086", "user1@abv.bg", "Second user", "UserLastName", "+359876547826", now());
 
 insert into categories(name)
 values("Plumbing"),
@@ -113,7 +114,8 @@ values( 4, 3, 4, 2, "Hello! i need help", now()),
 (3, 3, 4, 2, "Hello! How i can help", now()),
 (4, 3, 4, 2, "My toilet is cloged, and i cant fix it", now()),
 (3, 3, 4, 2, "yes of course, my rate is 50$ an hour, im free now", now()),
-(4, 3, 4, 2, "ok, my adress is ............. im waiting", now());
+(4, 3, 4, 2, "ok, my adress is ............. im waiting", now()),
+(5, 3, 5, 2, "Hello", now());
 
 insert into ratings(service_provider_id, user_id, post_id, rating, comment , created)
 values(3, 4, 2, 5.0, "Exelent work! Came rly fast", now());

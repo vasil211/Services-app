@@ -215,7 +215,7 @@ public class RatingsController {
         Scanner sc = new Scanner(System.in);
         System.out.println("Ratings: \n");
         var ratings = ratingService.getAllUnmoderated();
-        ratings.forEach(rating -> {
+        for(var rating : ratings){
             StringJoiner sj = new StringJoiner(", ", "\n", "");
             sj.add("\nID: " + rating.getId());
             sj.add("\nFor post - ID: " + rating.getPost().getId());
@@ -253,15 +253,15 @@ public class RatingsController {
                     })
             ));
             var check = menu.showForForEach();
-            if (check) throw new RuntimeException();
-        });
+            if (check) break;
+        };
     }
 
     public void browseModeratedComments() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Ratings: \n");
         var ratings = ratingService.getAllModerated();
-        ratings.forEach(rating -> {
+        for(var rating : ratings){
             StringJoiner sj = new StringJoiner(", ", "\n", "");
             sj.add("\nID: " + rating.getId());
             sj.add("\nFor post - ID: " + rating.getPost().getId());
@@ -294,8 +294,8 @@ public class RatingsController {
                     })
             ));
             var check = menu.showForForEach();
-            if (check) throw new RuntimeException();
-        });
+            if (check) break;
+        };
     }
 }
 

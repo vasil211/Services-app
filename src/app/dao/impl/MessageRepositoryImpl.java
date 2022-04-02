@@ -48,7 +48,8 @@ class MessageRepositoryImpl implements MessageRepository {
     public Message create(Message message) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "insert into messages(sender_id, service_provider_id, user_id, post_id, message, sent) values (?, ?, ?, ?, ?, ?)");
+                    "insert into messages(sender_id, service_provider_id, user_id, post_id, message, sent)" +
+                            " values (?, ?, ?, ?, ?, ?)");
             preparedStatement.setLong(1, message.getSender());
             preparedStatement.setLong(2, message.getUserProvider().getId());
             preparedStatement.setLong(3, message.getUser().getId());
@@ -73,12 +74,11 @@ class MessageRepositoryImpl implements MessageRepository {
                             + " messages.service_provider_id, posts.name FROM messages join users"
                             + " on messages.service_provider_id = users.id join posts"
                             + " on messages.post_id = posts.id"
-                            + " where messages.service_provider_id = ?  group by messages.user_id");
+                            + " where messages.user_id = ?  group by messages.user_id");
             preparedStatement.setLong(1, user_id);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 MessagesGroupedForUser message = new MessagesGroupedForUser();
-                message.setId(rs.getLong("id"));
                 message.setSent(rs.getTimestamp("sent").toLocalDateTime());
                 message.setFirstName(rs.getString("first_name"));
                 message.setLastName(rs.getString("last_name"));
@@ -126,10 +126,12 @@ class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public Collection<Message> messagesChat(Long provider_id, Long user_id) {
+    public Collection<Message> messagesChat(Long user_id, Long  provider_id) {
         List<Message> messages = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select * from messages where service_provider_id = ? and user_id = ? order by sent");
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement("select * from messages where service_provider_id = ? " +
+                            "and user_id = ? order by sent");
             preparedStatement.setLong(1, provider_id);
             preparedStatement.setLong(2, user_id);
             ResultSet rs = preparedStatement.executeQuery();
