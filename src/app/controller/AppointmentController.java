@@ -2,16 +2,15 @@ package app.controller;
 
 import app.exeption.NonexistingEntityException;
 import app.model.Appointments;
+import app.model.Post;
 import app.model.User;
 import app.service.AppointmentsService;
 import app.service.UserService;
 import app.view.Menu;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.List;
-import java.util.Scanner;
-import java.util.StringJoiner;
+import java.util.*;
 
 public class AppointmentController {
     private final AppointmentsService appointmentsService;
@@ -125,7 +124,7 @@ public class AppointmentController {
                 new Menu.Option("List all PENDING", () -> {
                     Collection<Appointments> appointments;
                     try {
-                        appointments = appointmentsService.findAllPendingForUser(user.getId());
+                        appointments = appointmentsService.findAllPendingForProvider(user.getId());
                         appointments.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add("Appointment ID: " + appointment.getId());
@@ -146,7 +145,7 @@ public class AppointmentController {
                 new Menu.Option("List all ACCEPTED", () -> {
                     Collection<Appointments> appointments = null;
                     try {
-                        appointments = appointmentsService.findAllAcceptedForUser(user.getId());
+                        appointments = appointmentsService.findAllAcceptedForProvider(user.getId());
                         appointments.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add("Appointment ID: " + appointment.getId());
@@ -167,7 +166,7 @@ public class AppointmentController {
                 new Menu.Option("List all FINISHED", () -> {
                     Collection<Appointments> appointments = null;
                     try {
-                        appointments = appointmentsService.findAllFinishedForUser(user.getId());
+                        appointments = appointmentsService.findAllFinishedForProvider(user.getId());
                         appointments.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add("Appointment ID: " + appointment.getId());
@@ -188,7 +187,7 @@ public class AppointmentController {
                 new Menu.Option("List all DECLINED", () -> {
                     Collection<Appointments> appointments = null;
                     try {
-                        appointments = appointmentsService.findAllDeclinedForUser(user.getId());
+                        appointments = appointmentsService.findAllDeclinedForProvider(user.getId());
                         appointments.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add("Appointment ID: " + appointment.getId());
@@ -216,18 +215,18 @@ public class AppointmentController {
         Collection<Appointments> accepted = null;
         Collection<Appointments> finished = null;
         try {
-            pending = appointmentsService.findAllPendingForUser(user.getId());
+            pending = appointmentsService.findAllPendingForProvider(user.getId());
 
         } catch (NonexistingEntityException e) {
             System.out.print("");
         }
         try {
-            accepted = appointmentsService.findAllAcceptedForUser(user.getId());
+            accepted = appointmentsService.findAllAcceptedForProvider(user.getId());
         } catch (NonexistingEntityException e) {
             System.out.print("");
         }
         try {
-            finished = appointmentsService.findAllFinishedForUser(user.getId());
+            finished = appointmentsService.findAllFinishedForProvider(user.getId());
         } catch (NonexistingEntityException e) {
             System.out.print("");
         }
@@ -333,6 +332,100 @@ public class AppointmentController {
                         });
                     } else {
                         System.out.println("You have no finished appointments");
+                    }
+                    return "";
+                })
+        ));
+        menu.show();
+    }
+
+    public void userAppointments(User user) {
+        Collection<Appointments> pending = appointmentsService.findAllPendingFromUser(user.getId());
+        Collection<Appointments> accepted = appointmentsService.findAllAcceptedFromUser(user.getId());
+        Collection<Appointments> finished = appointmentsService.findAllFinishedFromUser(user.getId());
+        Collection<Appointments> declined = appointmentsService.findAllDeclinedFromUser(user.getId());
+        int pendingSize = 0;
+        int acceptedSize = 0;
+        int finishedSize = 0;
+        int declinedSize = 0;
+        if (!pending.isEmpty()) {
+            pendingSize = pending.size();
+        }
+        if (!accepted.isEmpty()) {
+            acceptedSize = accepted.size();
+        }
+        if (!finished.isEmpty()) {
+            finishedSize = finished.size();
+        }
+        if (!declined.isEmpty()) {
+            declinedSize = declined.size();
+        }
+        var menu = new Menu("", List.of(
+                new Menu.Option("List pending, you have " + pendingSize, () -> {
+                    if (!pending.isEmpty()) {
+                        pending.forEach(appointment -> {
+                            StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("For: " + appointment.getPost().getName());
+                            joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
+                                    + appointment.getServiceProvider().getLastName());
+                            joiner.add("\nAddress: " + appointment.getAddress());
+                            joiner.add("\nCreated: " + appointment.getCreated());
+                            System.out.println(joiner);
+                        });
+                    } else {
+                        System.out.println("You have no pending appointments");
+                    }
+                    return "";
+                }),
+                new Menu.Option("List all accepted, you have " + acceptedSize, () -> {
+                    if (!accepted.isEmpty()) {
+                        accepted.forEach(appointment -> {
+                            StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("For: " + appointment.getPost().getName());
+                            joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
+                                    + appointment.getServiceProvider().getLastName());
+                            joiner.add("\nAddress: " + appointment.getAddress());
+                            joiner.add("\nCreated: " + appointment.getCreated());
+                            joiner.add("\nAccepted: " + appointment.getUpdated());
+                            System.out.println(joiner);
+                        });
+                    } else {
+                        System.out.println("You have no accepted appointments");
+                    }
+                    return "";
+                }),
+                new Menu.Option("List all finished, you have " + finishedSize, () -> {
+                    if (!finished.isEmpty()) {
+                        finished.forEach(appointment -> {
+                            StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("For: " + appointment.getPost().getName());
+                            joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
+                                    + appointment.getServiceProvider().getLastName());
+                            joiner.add("\nAddress: " + appointment.getAddress());
+                            joiner.add("\nCreated: " + appointment.getCreated());
+                            joiner.add("\nFinished: " + appointment.getUpdated());
+                            System.out.println(joiner);
+                        });
+                    } else {
+                        System.out.println("You have no finished appointments");
+                    }
+                    return "";
+                }),
+                new Menu.Option("List all declined, you have " + declinedSize, () -> {
+                    if (!declined.isEmpty()) {
+                        declined.forEach(appointment -> {
+                            StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("For: " + appointment.getPost().getName());
+                            joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
+                                    + appointment.getServiceProvider().getLastName());
+                            joiner.add("\nAddress: " + appointment.getAddress());
+                            joiner.add("\nCreated: " + appointment.getCreated());
+                            joiner.add("\nDeclined: " + appointment.getUpdated());
+                            joiner.add("\nReason: " + appointment.getDeclineComment());
+                            System.out.println(joiner);
+                        });
+                    } else {
+                        System.out.println("You have no declined appointments");
                     }
                     return "";
                 })

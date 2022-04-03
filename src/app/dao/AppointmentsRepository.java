@@ -18,6 +18,13 @@ public interface AppointmentsRepository extends Repository<Long, Appointments> {
     Collection<Appointments> findAllDeclined();
     Collection<Appointments> findAllFinished();
 
+    Collection<Appointments> findAllPendingFromUser(Long userId);
+
+    Collection<Appointments> findAllAcceptedFromUser(Long userId);
+
+    Collection<Appointments> findAllDeclinedFromUser(Long userId);
+
+    Collection<Appointments> findAllFinishedFromUser(Long userId);
 }
 
 

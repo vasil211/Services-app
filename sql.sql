@@ -92,6 +92,17 @@ create table appointments(
     CONSTRAINT FOREIGN KEY (post_id)
         REFERENCES posts (id)
 ); 
+create table aplications(
+ id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  info varchar(500) not null,
+  created datetime default now(),
+  status varchar(10) not null,
+  reason_for_rejection varchar(250) default 'not',
+  rejected datetime default now(),
+   CONSTRAINT FOREIGN KEY (user_id)
+        REFERENCES users (id)
+);
 
 insert into users(role, user_name, password, email, first_name, last_name, phone,created)
 values("ADMIN", "admin", "4d1ace77931dbb1208607eb3ab594086", "admin@abv.bg", "AdminFirstName", "AdminLastName", "+359876547826", now()),

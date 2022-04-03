@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class AppointmentsRepositoryImpl implements AppointmentsRepository {
+class AppointmentsRepositoryImpl implements AppointmentsRepository {
     private final Connection connection;
     private final UserRepositoryImpl userRepository = new UserRepositoryImpl();
     private final PostRepositoryImpl postRepository = new PostRepositoryImpl();
@@ -401,6 +401,110 @@ public class AppointmentsRepositoryImpl implements AppointmentsRepository {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
                     "SELECT * FROM services.appointments WHERE state = 'FINISHED'");
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Appointments appointment = new Appointments();
+                appointment.setId(rs.getLong("id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
+                appointment.setState(rs.getString("state"));
+                appointment.setAddress(rs.getString("address"));
+                appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                appointment.setUpdated(rs.getTimestamp("modified").toLocalDateTime());
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllPendingFromUser(Long userId) {
+        Collection<Appointments> appointments = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM services.appointments WHERE user_id = ? AND state = 'PENDING'");
+            preparedStatement.setLong(1, userId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Appointments appointment = new Appointments();
+                appointment.setId(rs.getLong("id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
+                appointment.setState(rs.getString("state"));
+                appointment.setAddress(rs.getString("address"));
+                appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                appointment.setUpdated(rs.getTimestamp("modified").toLocalDateTime());
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllAcceptedFromUser(Long userId) {
+        Collection<Appointments> appointments = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM services.appointments WHERE user_id = ? AND state = 'ACCEPTED'");
+            preparedStatement.setLong(1, userId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Appointments appointment = new Appointments();
+                appointment.setId(rs.getLong("id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
+                appointment.setState(rs.getString("state"));
+                appointment.setAddress(rs.getString("address"));
+                appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                appointment.setUpdated(rs.getTimestamp("modified").toLocalDateTime());
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllDeclinedFromUser(Long userId) {
+        Collection<Appointments> appointments = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM services.appointments WHERE user_id = ? AND state = 'DECLINED'");
+            preparedStatement.setLong(1, userId);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Appointments appointment = new Appointments();
+                appointment.setId(rs.getLong("id"));
+                appointment.setServiceProvider(userRepository.findById(rs.getLong("service_provider_id")));
+                appointment.setUser(userRepository.findById(rs.getLong("user_id")));
+                appointment.setPost(postRepository.findById(rs.getLong("post_id")));
+                appointment.setState(rs.getString("state"));
+                appointment.setAddress(rs.getString("address"));
+                appointment.setCreated(rs.getTimestamp("created").toLocalDateTime());
+                appointment.setUpdated(rs.getTimestamp("modified").toLocalDateTime());
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllFinishedFromUser(Long userId) {
+        Collection<Appointments> appointments = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT * FROM services.appointments WHERE user_id = ? AND state = 'FINISHED'");
+            preparedStatement.setLong(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 Appointments appointment = new Appointments();

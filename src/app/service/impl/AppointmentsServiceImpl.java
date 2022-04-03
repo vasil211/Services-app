@@ -48,7 +48,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     @Override
-    public Collection<Appointments> findAllPendingForUser(Long serviceProviderId) throws NonexistingEntityException {
+    public Collection<Appointments> findAllPendingForProvider(Long serviceProviderId) throws NonexistingEntityException {
         var appointments=  appointmentsRepo.findAllPendingForUser(serviceProviderId);
         if(appointments.isEmpty()){
             throw new NonexistingEntityException("There are no pending appointments for this user");
@@ -57,7 +57,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     @Override
-    public Collection<Appointments> findAllAcceptedForUser(Long serviceProviderId) throws NonexistingEntityException {
+    public Collection<Appointments> findAllAcceptedForProvider(Long serviceProviderId) throws NonexistingEntityException {
         var appointments=  appointmentsRepo.findAllAcceptedForUser(serviceProviderId);
         if(appointments.isEmpty()){
             throw new NonexistingEntityException("There are no accepted appointments for this user");
@@ -66,7 +66,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     @Override
-    public Collection<Appointments> findAllDeclinedForUser(Long serviceProviderId) throws NonexistingEntityException {
+    public Collection<Appointments> findAllDeclinedForProvider(Long serviceProviderId) throws NonexistingEntityException {
         var appointments=  appointmentsRepo.findAllDeclinedForUser(serviceProviderId);
         if(appointments.isEmpty()){
             throw new NonexistingEntityException("There are no declined appointments for this user");
@@ -75,12 +75,32 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     @Override
-    public Collection<Appointments> findAllFinishedForUser(Long serviceProviderId) throws NonexistingEntityException {
+    public Collection<Appointments> findAllFinishedForProvider(Long serviceProviderId) throws NonexistingEntityException {
         var appointments=  appointmentsRepo.findAllFinishedForUser(serviceProviderId);
         if(appointments.isEmpty()){
             throw new NonexistingEntityException("There are no finished appointments for this user");
         }
         return appointments;
+    }
+
+    @Override
+    public Collection<Appointments> findAllPendingFromUser(Long userId) {
+        return appointmentsRepo.findAllPendingFromUser(userId);
+    }
+
+    @Override
+    public Collection<Appointments> findAllAcceptedFromUser(Long userId) {
+        return appointmentsRepo.findAllAcceptedFromUser(userId);
+    }
+
+    @Override
+    public Collection<Appointments> findAllDeclinedFromUser(Long userId) {
+        return appointmentsRepo.findAllDeclinedFromUser(userId);
+    }
+
+    @Override
+    public Collection<Appointments> findAllFinishedFromUser(Long userId) {
+        return appointmentsRepo.findAllFinishedFromUser(userId);
     }
 
     @Override

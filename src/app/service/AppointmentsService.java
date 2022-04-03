@@ -11,10 +11,14 @@ public interface AppointmentsService {
     boolean declineAppointment(Long id, String reason);
     boolean finishAppointment(Long id);
     Collection<Appointments> findAll();
-    Collection<Appointments> findAllPendingForUser(Long serviceProviderId) throws NonexistingEntityException;
-    Collection<Appointments> findAllAcceptedForUser(Long serviceProviderId) throws NonexistingEntityException;
-    Collection<Appointments> findAllDeclinedForUser(Long serviceProviderId) throws NonexistingEntityException;
-    Collection<Appointments> findAllFinishedForUser(Long serviceProviderId) throws NonexistingEntityException;
+    Collection<Appointments> findAllPendingForProvider(Long serviceProviderId) throws NonexistingEntityException;
+    Collection<Appointments> findAllAcceptedForProvider(Long serviceProviderId) throws NonexistingEntityException;
+    Collection<Appointments> findAllDeclinedForProvider(Long serviceProviderId) throws NonexistingEntityException;
+    Collection<Appointments> findAllFinishedForProvider(Long serviceProviderId) throws NonexistingEntityException;
+    Collection<Appointments> findAllPendingFromUser(Long userId);
+    Collection<Appointments> findAllAcceptedFromUser(Long userId);
+    Collection<Appointments> findAllDeclinedFromUser(Long userId);
+    Collection<Appointments> findAllFinishedFromUser(Long userId);
     Collection<Appointments> findAllPending();
     Collection<Appointments> findAllAccepted();
     Collection<Appointments> findAllDeclined();

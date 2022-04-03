@@ -3,10 +3,13 @@ package app.controller;
 import app.exeption.InvalidEntityDataException;
 import app.exeption.NonexistingEntityException;
 import app.model.User;
+import app.service.ApplicationService;
 import app.service.UserService;
 import app.service.validators.UserValidation;
+import app.view.ApplicationView;
 import app.view.Menu;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,11 +17,16 @@ import java.util.concurrent.atomic.AtomicReference;
 public class UserController {
     private final UserValidation userValidation;
     private final UserService userService;
+    private final ApplicationView applicationView;
+    private final ApplicationService applicationService;
 
 
-    public UserController(UserValidation userValidation, UserService userService) {
+    public UserController(UserValidation userValidation, UserService userService , ApplicationView applicationView,
+                          ApplicationService applicationService) {
         this.userValidation = userValidation;
         this.userService = userService;
+        this.applicationView = applicationView;
+        this.applicationService = applicationService;
     }
 
     public User updatePersonalData(User user) {
@@ -26,8 +34,8 @@ public class UserController {
         var menu = new Menu("Update personal data menu", List.of(
                 new Menu.Option("Chane Username", () -> {
                     String userName;
+                    System.out.println("Enter username: ");
                     do {
-                        System.out.println("Enter username: ");
                         userName = sc.nextLine();
                         try {
                             userValidation.isValidUsername(userName);
@@ -42,8 +50,8 @@ public class UserController {
                 }),
                 new Menu.Option("Chane password", () -> {
                     String password;
+                    System.out.println("Enter password: ");
                     do {
-                        System.out.println("Enter password: ");
                         password = sc.nextLine();
                         try {
                             userValidation.isPasswordCorrect(password);
@@ -58,8 +66,8 @@ public class UserController {
                 }),
                 new Menu.Option("Change email", () -> {
                     String email;
+                    System.out.println("Enter email: ");
                     do {
-                        System.out.println("Enter email: ");
                         email = sc.nextLine();
                         try {
                             userValidation.isValidEmailAddress(email);
@@ -74,8 +82,8 @@ public class UserController {
                 }),
                 new Menu.Option("Chane First name", () -> {
                     String firstName;
+                    System.out.println("Enter First name: ");
                     do {
-                        System.out.println("Enter First name: ");
                         firstName = sc.nextLine();
                         try {
                             userValidation.validateFirstName(firstName);
@@ -90,8 +98,8 @@ public class UserController {
                 }),
                 new Menu.Option("Change Last Name", () -> {
                     String lastName;
+                    System.out.println("Enter Last name: ");
                     do {
-                        System.out.println("Enter Last name: ");
                         lastName = sc.nextLine();
                         try {
                             userValidation.validateLastName(lastName);
@@ -106,8 +114,8 @@ public class UserController {
                 }),
                 new Menu.Option("Chane Phone", () -> {
                     String phone;
+                    System.out.println("Enter Phone:");
                     do {
-                        System.out.println("Enter Phone:");
                         phone = sc.nextLine();
                         try {
                             userValidation.isPhoneValid(phone);
@@ -281,5 +289,32 @@ public class UserController {
                 })
         ));
         menu.show();
+    }
+
+    public void applyToBecomeProvider(User user) {
+        var applied = applicationService.getLastApplicationForUser(user);
+        Scanner sc = new Scanner(System.in);
+        if (applied == null) {
+            System.out.println("Do you want to become a service provider? (yes/no)");
+            var answer = sc.nextLine();
+            if (answer.equals("yes")) {
+                var application = applicationView.applyToBecomeProvider(user);
+                applicationService.createApplication(application);
+            }
+        } else {
+            System.out.println("You already applied to become a service provider.");
+            System.out.println("Application status: " + applied.getStatus());
+            if(applied.getStatus().equals("REJECTED")) {
+                System.out.println("Reason: ");
+                System.out.println(applied.getReason());
+                System.out.println(applied.getRejected().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+                System.out.println("Do you want to apply again? (yes/no)");
+                var answer = sc.nextLine();
+                if (answer.equals("yes")) {
+                    var application = applicationView.applyToBecomeProvider(user);
+                    applicationService.createApplication(application);
+                }
+            }
+        }
     }
 }

@@ -9,8 +9,20 @@ import app.service.validators.CategoryValidation;
 import app.service.validators.PostValidation;
 import app.service.validators.RatingValidation;
 import app.service.validators.UserValidation;
+import app.view.ApplicationView;
 import app.view.LoginView;
 import app.view.MessagesView;
+import app.view.PostView;
+
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -27,7 +39,11 @@ public class Main {
         RatingValidation ratingValidator = new RatingValidation(ratingRepository);
         UserService userService = new UserServiceImpl(userRepository, userValidator);
         LoginView loginVIew = new LoginView(userValidator);
-        UserController adminController = new UserController(userValidator, userService);
+        ApplicationView applicationView = new ApplicationView();
+        ApplicationRepository applicationRepository = daoFactory.createApplicationRepository();
+        ApplicationService applicationService = new ApplicationServiceImpl(applicationRepository);
+        UserController adminController = new UserController(userValidator, userService, applicationView,
+                applicationService);
         CategoryService categoryService = new CategoryServiceImpl(categoryRepository);
         PostService postService = new PostServiceImpl(postRepository, categoryRepository, postValidator);
         MessageService messageService = new MessageServiceImpl(messageRepository);
@@ -36,10 +52,14 @@ public class Main {
         CategoryValidation categoryValidator = new CategoryValidation(categoryService);
         AppointmentController appointmentController = new AppointmentController(appointmentsService, userService);
         RatingsController ratingsController = new RatingsController(ratingService);
-        PostsController postsController = new PostsController(categoryService, postService, userService, categoryValidator, ratingService);
+        PostView postView = new PostView();
+        PostsController postsController = new PostsController(categoryService, postService, userService,
+                categoryValidator, ratingService, postView);
         MessagesView messagesView = new MessagesView(messageService);
         MessagesController messagesController = new MessagesController(messagesView, messageService);
-        HomeController homeController = new HomeController(userService, adminController, appointmentsService, postService, postsController, appointmentController, ratingsController, messageService, messagesController);
+        HomeController homeController = new HomeController(userService, adminController, appointmentsService,
+                postService, postsController, appointmentController, ratingsController, messageService,
+                messagesController);
 
 
 

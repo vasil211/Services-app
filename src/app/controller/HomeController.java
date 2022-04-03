@@ -50,19 +50,22 @@ public class HomeController {
                         appointmentController.adminAppointmentsMenu();
                         return "";
                     }),
+                    new Menu.Option("Manage applications", () -> {
+                        // TODO: implement same ass moderator
+                        return "";
+                    }),
                     new Menu.Option("Manage ratings", () -> {
                         ratingsController.adminRatingsMenu();
                         return "";
                     })
-
             ));
             menu.show();
         } else if (user.getRole() == Role.MODERATOR) {
             var menu = new Menu("Moderator Menu", List.of(
-//                    new Menu.Option("Browse applications", () -> {
-//                        // TODO: if?
-//                        return "";
-//                    }),
+                    new Menu.Option("Browse applications", () -> {
+                        // TODO: implement
+                        return "";
+                    }),
                     new Menu.Option("Browse posts", () -> {
                         try {
                             postsController.moderatePostsMenu();
@@ -78,6 +81,10 @@ public class HomeController {
                     new Menu.Option("Browse for service", () -> {
                         // TODO: use users but add DELETE   and add field moderated?
                         return "";
+                    }),
+                    new Menu.Option("Menage personal data", () -> {
+                        userController.updatePersonalData(user);
+                        return "";
                     })
             ));
             menu.show();
@@ -92,18 +99,21 @@ public class HomeController {
                         return "";
                     }),
                     new Menu.Option("Menage Posts", () -> {
-                        // TODO: fill
+                        postsController.providerPostsMenu(user);
                         return "";  
                     }),
-                    new Menu.Option("Add post", () -> {
-                        // TODO: fill
+                    new Menu.Option("Create post", () -> {
+                        postsController.createPost(user);
+                        return "";
+                    }),
+                    new Menu.Option("Menage personal data", () -> {
+                        userController.updatePersonalData(user);
                         return "";
                     }),
                     new Menu.Option("Back to user view", () -> {
                         // TODO: fill
                         return "";
                     })
-                    // TODO: MORE
             ));
             menu.show();
         } else if (user.getRole() == Role.USER) {
@@ -114,15 +124,19 @@ public class HomeController {
                     }),
                     new Menu.Option("Messages", () -> {
                         messages.show(user);
-                        // TODO: fill
                         return "";
                     }),
                     new Menu.Option("Appointments", () -> {
-                        // TODO: fill
+                        appointmentController.userAppointments(user);
                         return "";
                     }),
                     new Menu.Option("Menage personal data", () -> {
-                        // TODO: fill    add   Apply to become provider
+                        userController.updatePersonalData(user);
+
+                        return "";
+                    }),
+                    new Menu.Option("Apply to become provider", () -> {
+                        userController.applyToBecomeProvider(user);
                         return "";
                     })
             ));

@@ -36,4 +36,11 @@ public class DaoFactoryImpl implements DaoFactory {
     }
 
 
+    @Override
+    public ApplicationRepository createApplicationRepository() {
+        return new ApplicationRepositoryImpl();
+    }
+
+
+
 }

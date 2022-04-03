@@ -12,6 +12,8 @@ import app.service.RatingService;
 import app.service.UserService;
 import app.service.validators.CategoryValidation;
 import app.view.Menu;
+import app.view.PostView;
+
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -22,15 +24,17 @@ public class PostsController {
     private final UserService userService;
     private final CategoryValidation categoryValidation;
     private final RatingService ratingService;
+    private final PostView postView;
 
     public PostsController(CategoryService categoryService, PostService postService,
                            UserService userService, CategoryValidation categoryValidation,
-                           RatingService ratingService) {
+                           RatingService ratingService, PostView postView) {
         this.categoryService = categoryService;
         this.postService = postService;
         this.userService = userService;
         this.categoryValidation = categoryValidation;
         this.ratingService = ratingService;
+        this.postView = postView;
     }
 
     public void adminPostsMenu() {
@@ -301,7 +305,7 @@ public class PostsController {
         Scanner sc = new Scanner(System.in);
         System.out.println("Posts: \n");
         var posts = postService.getAllUnmoderated();
-        for(var post : posts){
+        for (var post : posts) {
             StringJoiner sj = new StringJoiner(", ", "\n", "");
             sj.add("\nID: " + post.getId());
             sj.add("\nFrom user - ID: " + post.getUser().getId() + " "
@@ -341,7 +345,8 @@ public class PostsController {
             ));
             var check = menu.showForForEach();
             if (check) break;
-        };
+        }
+        ;
     }
 
     public void browseModeratedPosts() {
@@ -386,4 +391,90 @@ public class PostsController {
         }
         ;
     }
+
+    public void providerPostsMenu(User user) {
+        var menu = new Menu("Posts Menu", List.of(
+                new Menu.Option("Create post", () -> {
+                    createPost(user);
+                    return "";
+                }),
+                new Menu.Option("Browse own posts", () -> {
+                    browsePosts(user);
+                    return "";
+                })
+        ));
+        menu.show();
+    }
+
+    public void browsePosts(User user) {
+        ArrayList<Post> posts;
+        try {
+            posts = (ArrayList<Post>) postService.getAllPostsByUser(user.getId());
+            for (var post : posts) {
+                StringJoiner sj = new StringJoiner(", ", "", "");
+                sj.add("\nTitle: " + post.getName());
+                sj.add("\nInfo: " + post.getInfo());
+                sj.add("\nCreated: " + post.getCreated().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                sj.add("\nModified: " + post.getModified().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                System.out.println(sj);
+                var comments = ratingService.getAllRatingsForPost(post.getId());
+                sj.add("\nComments: ");
+                System.out.println(sj);
+                comments.forEach(comment -> {
+                    StringJoiner sj2 = new StringJoiner(", ", "", "");
+                    sj2.add("\nID: " + comment.getId());
+                    sj2.add("\n" + comment.getUser().getFirstName()
+                            + " " + comment.getUser().getLastName());
+                    sj2.add("\nText: " + comment.getComment());
+                    sj.add("\nRating: " + comment.getRating());
+                    sj2.add("\nCreated: " + comment.getCreated()
+                            .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                    System.out.println(sj2);
+                });
+                System.out.println("");
+                var menu = new Menu("", List.of(
+                        new Menu.Option("Go to next", () -> {
+                            return "";
+                        }),
+                        new Menu.Option("Update", () -> {
+                            postView.updatePost(post);
+                            return "";
+                        }),
+                        new Menu.Option("Delete", () -> {
+                            deletePost(post.getId());
+                            return "";
+                        })
+                ));
+                var check = menu.showForForEach();
+                if (check) break;
+            }
+            ;
+        } catch (NonexistingEntityException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void createPost(User user) {
+        var categories = (ArrayList<Category>) categoryService.getAllCategories();
+        var post = postView.createPost(user, categories);
+        postService.createPost(post);
+        System.out.println("Post created");
+    }
+
+    public void deletePost(Long id) {
+        Scanner sc = new Scanner(System.in);
+        do {
+            System.out.println("Enter 'DELETE' to confirm");
+            var check = sc.nextLine();
+            if (check.equals("DELETE")) {
+                try {
+                    postService.deletePostById(id, "DELETED BY USER");
+                    break;
+                } catch (NonexistingEntityException e) {
+                    e.printStackTrace();
+                }
+            }
+        } while (true);
+    }
+
 }
