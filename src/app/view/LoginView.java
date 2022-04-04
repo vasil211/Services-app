@@ -24,7 +24,7 @@ public class LoginView {
             System.out.println("Enter password:");
             password = scanner.nextLine();
             try {
-                userValidation.isPasswordCorrect(password);
+                userValidation.validatePassword(password);
                 break;
             } catch (InvalidEntityDataException e) {
                 System.out.println(e.getMessage());

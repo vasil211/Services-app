@@ -3,10 +3,21 @@ package app.view;
 import app.model.Rating;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import java.util.StringJoiner;
 
 public class RatingView {
+    public void displayRating(Rating rating) {
+        StringJoiner sj = new StringJoiner("", "\n Comment ", "");
+        sj.add("from: " + rating.getUser().getFirstName() + " " + rating.getUser().getLastName());
+        sj.add("\n Rating: " + rating.getRating());
+        sj.add("\n Comment: " + rating.getComment());
+        sj.add("\n Date: " + rating.getModified().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        System.out.println(sj.toString());
+    }
 
+    // todo CREATE RATING AFTER APPOINTMENT IS DONE
     // Create Rating
 //    Scanner sc = new Scanner(System.in);
 //        System.out.println("Hello! you are about to make a review for " + serviceProvider.getFirstName() + " " + serviceProvider.getLastName());

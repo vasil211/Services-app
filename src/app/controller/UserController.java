@@ -19,14 +19,16 @@ public class UserController {
     private final UserService userService;
     private final ApplicationView applicationView;
     private final ApplicationService applicationService;
+    private final RegistrationController registrationController;
 
 
     public UserController(UserValidation userValidation, UserService userService , ApplicationView applicationView,
-                          ApplicationService applicationService) {
+                          ApplicationService applicationService, RegistrationController registrationController) {
         this.userValidation = userValidation;
         this.userService = userService;
         this.applicationView = applicationView;
         this.applicationService = applicationService;
+        this.registrationController = registrationController;
     }
 
     public User updatePersonalData(User user) {
@@ -38,7 +40,7 @@ public class UserController {
                     do {
                         userName = sc.nextLine();
                         try {
-                            userValidation.isValidUsername(userName);
+                            userValidation.validateUsername(userName);
                             break;
                         } catch (InvalidEntityDataException e) {
                             System.out.println(e.getMessage());
@@ -54,7 +56,7 @@ public class UserController {
                     do {
                         password = sc.nextLine();
                         try {
-                            userValidation.isPasswordCorrect(password);
+                            userValidation.validatePassword(password);
                             break;
                         } catch (InvalidEntityDataException e) {
                             System.out.println(e.getMessage());
@@ -70,7 +72,7 @@ public class UserController {
                     do {
                         email = sc.nextLine();
                         try {
-                            userValidation.isValidEmailAddress(email);
+                            userValidation.validateEmailAddress(email);
                             break;
                         } catch (InvalidEntityDataException e) {
                             System.out.println(e.getMessage());
@@ -118,7 +120,7 @@ public class UserController {
                     do {
                         phone = sc.nextLine();
                         try {
-                            userValidation.isPhoneValid(phone);
+                            userValidation.validatePhone(phone);
                             break;
                         } catch (InvalidEntityDataException e) {
                             System.out.println(e.getMessage());
@@ -161,7 +163,7 @@ public class UserController {
                         System.out.println("Enter username: ");
                         userName = sc.nextLine();
                         try {
-                            userValidation.isValidUsername(userName);
+                            userValidation.validateUsername(userName);
                             break;
                         } catch (InvalidEntityDataException e) {
                             System.out.println(e.getMessage());
@@ -177,7 +179,7 @@ public class UserController {
                         System.out.println("Enter password: ");
                         password = sc.nextLine();
                         try {
-                            userValidation.isPasswordCorrect(password);
+                            userValidation.validatePassword(password);
                             break;
                         } catch (InvalidEntityDataException e) {
                             System.out.println(e.getMessage());
@@ -193,7 +195,7 @@ public class UserController {
                         System.out.println("Enter email: ");
                         email = sc.nextLine();
                         try {
-                            userValidation.isValidEmailAddress(email);
+                            userValidation.validateEmailAddress(email);
                             break;
                         } catch (InvalidEntityDataException e) {
                             System.out.println(e.getMessage());
@@ -241,7 +243,7 @@ public class UserController {
                         System.out.println("Enter Phone:");
                         phone = sc.nextLine();
                         try {
-                            userValidation.isPhoneValid(phone);
+                            userValidation.validatePhone(phone);
                             break;
                         } catch (InvalidEntityDataException e) {
                             System.out.println(e.getMessage());
@@ -263,6 +265,7 @@ public class UserController {
                     updatePersonalData(user);
                     return "Personal data update successful.";
                 }),
+
                 new Menu.Option("List all Admins and data", () -> {
                     var books = userService.getAllAdmins();
                     books.forEach(System.out::println);
@@ -286,6 +289,10 @@ public class UserController {
                 new Menu.Option("Manage user", () -> {
                     updateUser();
                     return "Users loaded successfully.";
+                }),
+                new Menu.Option("Register User", () -> {
+                    registrationController.register();
+                    return "User registered.";
                 })
         ));
         menu.show();
@@ -294,25 +301,27 @@ public class UserController {
     public void applyToBecomeProvider(User user) {
         var applied = applicationService.getLastApplicationForUser(user);
         Scanner sc = new Scanner(System.in);
-        if (applied == null) {
+        if (applied.getId() == null) {
             System.out.println("Do you want to become a service provider? (yes/no)");
             var answer = sc.nextLine();
             if (answer.equals("yes")) {
                 var application = applicationView.applyToBecomeProvider(user);
                 applicationService.createApplication(application);
+                System.out.println("Application submitted successfully.");
             }
         } else {
-            System.out.println("You already applied to become a service provider.");
+            System.out.println("\nYou already applied to become a service provider.");
             System.out.println("Application status: " + applied.getStatus());
             if(applied.getStatus().equals("REJECTED")) {
                 System.out.println("Reason: ");
-                System.out.println(applied.getReason());
+                System.out.println(applied.getReasonForRejection());
                 System.out.println(applied.getRejected().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-                System.out.println("Do you want to apply again? (yes/no)");
+                System.out.println("\nDo you want to apply again? (yes/no)");
                 var answer = sc.nextLine();
                 if (answer.equals("yes")) {
                     var application = applicationView.applyToBecomeProvider(user);
                     applicationService.createApplication(application);
+                    System.out.println("Application submitted successfully.");
                 }
             }
         }

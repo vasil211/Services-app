@@ -63,7 +63,7 @@ CREATE TABLE ratings (
     rating FLOAT NOT NULL,
     comment VARCHAR(250),
 	deleted boolean default false,
-    deleted_reasonx varchar(250),
+    deleted_comment varchar(250),
     moderated boolean default false,
     created DATETIME NOT NULL default now(),
     modified DATETIME  default now(),
@@ -98,7 +98,7 @@ create table aplications(
   info varchar(500) not null,
   created datetime default now(),
   status varchar(10) not null,
-  reason_for_rejection varchar(250) default 'not',
+  reason_for_rejection varchar(250) default 'PENDING',
   rejected datetime default now(),
    CONSTRAINT FOREIGN KEY (user_id)
         REFERENCES users (id)

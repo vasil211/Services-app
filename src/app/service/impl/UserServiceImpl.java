@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(String username, String password) {
         try {
-            userValidation.isPasswordCorrect(password);
+            userValidation.validatePassword(password);
         } catch (InvalidEntityDataException e) {
             System.out.println(e.getMessage());
             return null;
@@ -137,21 +137,21 @@ public class UserServiceImpl implements UserService {
     public User updateUser(User user, String filedUpdating, String newValue) {
         if (filedUpdating.equals("password")) {
             try {
-                userValidation.isPasswordCorrect(newValue);
+                userValidation.validatePassword(newValue);
                 user.setPassword(hash(newValue));
             } catch (InvalidEntityDataException e) {
                 e.printStackTrace();
             }
         } else if (filedUpdating.equals("username")) {
             try {
-                userValidation.isValidUsername(newValue);
+                userValidation.validateUsername(newValue);
                 user.setUserName(newValue);
             }catch (InvalidEntityDataException e) {
                 e.printStackTrace();
             }
         } else if (filedUpdating.equals("email")) {
             try {
-                userValidation.isValidEmailAddress(newValue);
+                userValidation.validateEmailAddress(newValue);
                 user.setEmail(newValue);
 
             }catch (InvalidEntityDataException e) {
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
             }
         }else if (filedUpdating.equals("phone")) {
             try {
-                userValidation.isPhoneValid(newValue);
+                userValidation.validatePhone(newValue);
                 user.setPhone(newValue);
             }catch (InvalidEntityDataException e) {
                 e.printStackTrace();
@@ -192,7 +192,7 @@ public class UserServiceImpl implements UserService {
             System.out.println("New password: ");
             password = sc.nextLine();
             try {
-                userValidation.isPasswordCorrect(password);
+                userValidation.validatePassword(password);
             } catch (InvalidEntityDataException e) {
                 System.out.println(e.getMessage());
                 System.out.println("Try again: ");

@@ -35,7 +35,6 @@ public class MessagesController {
             if (id < 1 || id > messages.size()) System.out.println("Invalid input");
             else break;
         } while (true);
-        // todo menu
         if (user.getRole().equals(Role.SERVICE_PROVIDER)) {
             do {
                 var firstMessage = messagesView.chatForProvider(user,

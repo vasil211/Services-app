@@ -75,8 +75,12 @@ class ApplicationRepositoryImpl implements ApplicationRepository {
     @Override
     public void acceptApplication(Long id) {
         try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("UPDATE services.aplications SET status = 'APPROVED' WHERE id = " + id);
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "UPDATE services.aplications, services.users SET aplications.status = 'APPROVED'," +
+                            "users.role = 'SERVICE_PROVIDER' WHERE aplications.id =  ? " +
+                            "and users.id = aplications.user_id");
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }

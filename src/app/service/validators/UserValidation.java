@@ -34,28 +34,28 @@ public class UserValidation {
                             "Last Name length should be between 2 and 15 characters."));
         }
         try {
-            isValidEmailAddress(user.getEmail());
+            validateEmailAddress(user.getEmail());
         } catch (InvalidEntityDataException e) {
             violations.add(
                     new ConstraintViolation(user.getClass().getName(), "Email", user.getEmail(),
                             e.getMessage()));
         }
         try {
-            isValidUsername(user.getUserName());
+            validateUsername(user.getUserName());
         } catch (InvalidEntityDataException e) {
             violations.add(
                     new ConstraintViolation(user.getClass().getName(), "Username", user.getUserName(),
                             e.getMessage()));
         }
         try {
-            isPasswordCorrect(user.getPassword());
+            validatePassword(user.getPassword());
         } catch (InvalidEntityDataException e) {
             violations.add(
                     new ConstraintViolation(user.getClass().getName(), "Password", user.getPassword(),
                             e.getMessage()));
         }
         try {
-            isPhoneValid(user.getPhone());
+            validatePhone(user.getPhone());
         } catch (InvalidEntityDataException e) {
             violations.add(
                     new ConstraintViolation(user.getClass().getName(), "Phone", user.getPhone(),
@@ -67,7 +67,7 @@ public class UserValidation {
         return user;
     }
 
-    public boolean isValidEmailAddress(String email) throws InvalidEntityDataException {
+    public boolean validateEmailAddress(String email) throws InvalidEntityDataException {
         String regexPattern = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
         Pattern pattern = Pattern.compile(regexPattern);
         Matcher matcher = pattern.matcher(email);
@@ -82,7 +82,7 @@ public class UserValidation {
         return true;
     }
 
-    public boolean isValidUsername(String username) throws InvalidEntityDataException {
+    public boolean validateUsername(String username) throws InvalidEntityDataException {
         String regexPattern = "^[a-zA-Z0-9]{2,15}$";
         Pattern pattern = Pattern.compile(regexPattern);
         Matcher matcher = pattern.matcher(username);
@@ -96,7 +96,7 @@ public class UserValidation {
         return true;
     }
 
-    public boolean isPasswordCorrect(String password) throws InvalidEntityDataException {
+    public boolean validatePassword(String password) throws InvalidEntityDataException {
         String regexPattern = "^(?=.{8,15}$)(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9\\W]).*$";
         Pattern pattern = Pattern.compile(regexPattern);
         Matcher matcher = pattern.matcher(password);
@@ -106,7 +106,7 @@ public class UserValidation {
         return true;
     }
 
-    public boolean isPhoneValid(String phone) throws InvalidEntityDataException {
+    public boolean validatePhone(String phone) throws InvalidEntityDataException {
         String regexPattern = "((\\+\\d{1,2}\\s?)?1?\\-?\\.?\\s?\\(?\\d{3}\\)?[\\s.-]?)?\\d{3}[\\s.-]?\\d{4}";
         Pattern pattern = Pattern.compile(regexPattern);
         Matcher matcher = pattern.matcher(phone);

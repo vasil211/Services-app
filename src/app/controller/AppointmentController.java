@@ -432,4 +432,9 @@ public class AppointmentController {
         ));
         menu.show();
     }
+
+    public void createAppointment(User user, Post post) {
+        System.out.println("hello");
+        // todo create appointment
+    }
 }

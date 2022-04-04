@@ -52,32 +52,30 @@ public class PostsController {
                             System.out.println("Enter the name of the category you want to search for:");
                             categoryName = scanner.nextLine();
                             category = categoryService.getCategoryByName(categoryName);
+                            Collection<Post> posts = new ArrayList<>();
+                            try {
+                                posts = postService.getAllPostsByCategory(category.getId());
+                            } catch (NonexistingEntityException e) {
+                                System.out.println(e.getMessage());
+                            }
+                            posts.forEach(post -> {
+                                var average = postService.calculateRatingForPost(post.getId());
+                                StringJoiner sj = new StringJoiner(", ", "", "");
+                                sj.add("id: " + post.getId().toString());
+                                sj.add("name: " + post.getName());
+                                sj.add("user: " + post.getUser().getFirstName() + " " + post.getUser().getLastName());
+                                sj.add("rating: " + average);
+                                sj.add("\ncreated: " + post.getCreated().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+                                sj.add("last modified: " + post.getModified().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+                                System.out.println("Posts: ");
+                                System.out.println(sj);
+                            });
                             break;
                         } catch (NonexistingEntityException e) {
                             System.out.println(e.getMessage());
                             System.out.println("Try again");
                         }
                     } while (true);
-                    Collection<Post> posts = new ArrayList<>();
-                    try {
-                        posts = postService.getAllPostsByCategory(category.getId());
-                    } catch (NonexistingEntityException e) {
-                        System.out.println(e.getMessage());
-                    }
-
-                    posts.forEach(post -> {
-
-                        var average = postService.calculateRatingForPost(post.getId());
-                        StringJoiner sj = new StringJoiner(", ", "", "");
-                        sj.add("id: " + post.getId().toString());
-                        sj.add("name: " + post.getName());
-                        sj.add("user: " + post.getUser().getFirstName() + " " + post.getUser().getLastName());
-                        sj.add("rating: " + average);
-                        sj.add("\ncreated: " + post.getCreated().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-                        sj.add("last modified: " + post.getModified().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-                        System.out.println("Posts: ");
-                        System.out.println(sj);
-                    });
                     return "";
                 }),
                 new Menu.Option("Update Category's name", () -> {
@@ -131,7 +129,6 @@ public class PostsController {
                     return "";
                 }),
                 new Menu.Option("List all Posts, without description", () -> {
-
                     var posts = postService.getAll();
                     posts.forEach(post -> {
                         var average = postService.calculateRatingForPost(post.getId());
@@ -437,7 +434,7 @@ public class PostsController {
                             return "";
                         }),
                         new Menu.Option("Update", () -> {
-                            postView.updatePost(post);
+                            updatePost(post);
                             return "";
                         }),
                         new Menu.Option("Delete", () -> {
@@ -477,4 +474,28 @@ public class PostsController {
         } while (true);
     }
 
+    public Post updatePost(Post post){
+        var menu = new Menu("Update post", List.of(
+                new Menu.Option("Update name", () -> {
+                    String name = postView.updateName(post);
+                    post.setName(name);
+                    return "";
+                }),
+                new Menu.Option("Update information", () -> {
+                    String info = postView.updateInformation(post);
+                    post.setInfo(info);
+                    return "";
+                }),
+                new Menu.Option("Change category", () -> {
+                    ArrayList<Category> categories = (ArrayList<Category>) categoryService.getAllCategories();
+                    Category category = postView.updateCategory(post, categories);
+                    post.setCategory(category);
+                    return "";
+                })
+        ));
+        menu.show();
+        postService.updatePost(post);
+        System.out.println("Post updated");
+        return post;
+    }
 }

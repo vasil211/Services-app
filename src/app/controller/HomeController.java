@@ -21,8 +21,15 @@ public class HomeController {
     private final AppointmentController appointmentController;
     private final RatingsController ratingsController;
     private final MessagesController messagesController;
+    private final ApplicationController applicationController;
+    private final ServiceController serviceController;
 
-    public HomeController(UserService userService, UserController userController, AppointmentsService appointmentsService, PostService postService, PostsController postsController, AppointmentController appointmentController, RatingsController ratingsController, MessageService messageService, MessagesController messagesController) {
+    public HomeController(UserService userService, UserController userController,
+                          AppointmentsService appointmentsService, PostService postService,
+                          PostsController postsController, AppointmentController appointmentController,
+                          RatingsController ratingsController, MessageService messageService,
+                          MessagesController messagesController, ApplicationController applicationController,
+                          ServiceController serviceController) {
         this.userService = userService;
         this.userController = userController;
         this.appointmentsService = appointmentsService;
@@ -32,6 +39,8 @@ public class HomeController {
         this.ratingsController = ratingsController;
         this.messageService = messageService;
         this.messagesController = messagesController;
+        this.applicationController = applicationController;
+        this.serviceController = serviceController;
     }
 
     public void home(User user) {
@@ -51,11 +60,15 @@ public class HomeController {
                         return "";
                     }),
                     new Menu.Option("Manage applications", () -> {
-                        // TODO: implement same ass moderator
+                        applicationController.moderatorApplicationsMenu();
                         return "";
                     }),
                     new Menu.Option("Manage ratings", () -> {
                         ratingsController.adminRatingsMenu();
+                        return "";
+                    }),
+                    new Menu.Option("Browse for service", () -> {
+                        serviceController.controllerForModerator();
                         return "";
                     })
             ));
@@ -63,7 +76,7 @@ public class HomeController {
         } else if (user.getRole() == Role.MODERATOR) {
             var menu = new Menu("Moderator Menu", List.of(
                     new Menu.Option("Browse applications", () -> {
-                        // TODO: implement
+                        applicationController.moderatorApplicationsMenu();
                         return "";
                     }),
                     new Menu.Option("Browse posts", () -> {
@@ -79,7 +92,7 @@ public class HomeController {
                         return "";
                     }),
                     new Menu.Option("Browse for service", () -> {
-                        // TODO: use users but add DELETE   and add field moderated?
+                        serviceController.controllerForModerator();
                         return "";
                     }),
                     new Menu.Option("Menage personal data", () -> {
@@ -111,7 +124,23 @@ public class HomeController {
                         return "";
                     }),
                     new Menu.Option("Back to user view", () -> {
-                        // TODO: fill
+                        user.setRole(Role.USER);
+                        var menu2 = new Menu("User Menu", List.of(
+                                new Menu.Option("Browse for service", () -> {
+                                    serviceController.servicesMenu(user);
+                                    return "";
+                                }),
+                                new Menu.Option("Messages", () -> {
+                                    messages.show(user);
+                                    return "";
+                                }),
+                                new Menu.Option("Appointments", () -> {
+                                    appointmentController.userAppointments(user);
+                                    return "";
+                                })
+                        ));
+                        menu2.show();
+                        user.setRole(Role.SERVICE_PROVIDER);
                         return "";
                     })
             ));
@@ -119,7 +148,7 @@ public class HomeController {
         } else if (user.getRole() == Role.USER) {
             var menu = new Menu("User Menu", List.of(
                     new Menu.Option("Browse for service", () -> {
-                        // TODO: fill
+                        serviceController.servicesMenu(user);
                         return "";
                     }),
                     new Menu.Option("Messages", () -> {

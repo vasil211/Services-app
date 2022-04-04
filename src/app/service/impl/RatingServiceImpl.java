@@ -102,8 +102,15 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public float calculateRatingForUser(Long id) throws NonexistingEntityException {
-        float rating = ratingRepo.calculateRating(id);
+        float rating = ratingRepo.calculateRatingForUser(id);
         if (rating == 0.0) throw new NonexistingEntityException("Did not find rating for this user");
+        return rating;
+    }
+
+    @Override
+    public float calculateRatingForPost(Long id) throws NonexistingEntityException {
+        float rating = ratingRepo.calculateRatingForPost(id);
+        if (rating == 0.0) throw new NonexistingEntityException("This post does not have ratings");
         return rating;
     }
 

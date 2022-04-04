@@ -14,6 +14,7 @@ public interface RatingService {
     Rating updateRating(Rating rating);
     boolean deleteRatingById(Long id, String explanation) throws NonexistingEntityException;
     float calculateRatingForUser(Long id) throws NonexistingEntityException;
+    float calculateRatingForPost(Long id) throws NonexistingEntityException;
     Long countForUser(Long id);
 
     Collection<Rating> getAllRatingsForPost(long id) throws NonexistingEntityException;
@@ -28,4 +29,6 @@ public interface RatingService {
     Collection<Rating> getAllUnmoderated();
 
     Collection<Rating> getAllModerated();
+
+
 }

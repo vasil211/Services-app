@@ -3,22 +3,22 @@ package app;
 import app.controller.*;
 import app.dao.*;
 import app.dao.impl.DaoFactoryImpl;
+import app.model.Category;
+import app.model.Post;
 import app.service.*;
 import app.service.impl.*;
 import app.service.validators.CategoryValidation;
 import app.service.validators.PostValidation;
 import app.service.validators.RatingValidation;
 import app.service.validators.UserValidation;
-import app.view.ApplicationView;
-import app.view.LoginView;
-import app.view.MessagesView;
-import app.view.PostView;
+import app.view.*;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -42,8 +42,7 @@ public class Main {
         ApplicationView applicationView = new ApplicationView();
         ApplicationRepository applicationRepository = daoFactory.createApplicationRepository();
         ApplicationService applicationService = new ApplicationServiceImpl(applicationRepository);
-        UserController adminController = new UserController(userValidator, userService, applicationView,
-                applicationService);
+
         CategoryService categoryService = new CategoryServiceImpl(categoryRepository);
         PostService postService = new PostServiceImpl(postRepository, categoryRepository, postValidator);
         MessageService messageService = new MessageServiceImpl(messageRepository);
@@ -53,14 +52,26 @@ public class Main {
         AppointmentController appointmentController = new AppointmentController(appointmentsService, userService);
         RatingsController ratingsController = new RatingsController(ratingService);
         PostView postView = new PostView();
+        RegistrationView registrationView = new RegistrationView(userValidator);
+        RegistrationController registrationController = new RegistrationController(registrationView, userService);
         PostsController postsController = new PostsController(categoryService, postService, userService,
                 categoryValidator, ratingService, postView);
         MessagesView messagesView = new MessagesView(messageService);
+        ApplicationController applicationController = new ApplicationController(applicationService);
         MessagesController messagesController = new MessagesController(messagesView, messageService);
+        ArrayList<Post> posts = (ArrayList<Post>)postService.getAll();
+        ArrayList<Category> categories = (ArrayList<Category>) categoryService.getAllCategories();
+        RatingView ratingView = new RatingView();
+        ServiceController serviceController = new ServiceController(posts, categories, postView, ratingService,
+                ratingView, appointmentController, postService);
+        UserController adminController = new UserController(userValidator, userService, applicationView,
+                applicationService, registrationController);
         HomeController homeController = new HomeController(userService, adminController, appointmentsService,
                 postService, postsController, appointmentController, ratingsController, messageService,
-                messagesController);
+                messagesController, applicationController, serviceController);
 
+        LoginController loginController = new LoginController(userService, loginVIew, homeController);
+        MainController mainController = new MainController(loginController, registrationController, serviceController);
 
 
 //        var filter = FileSystems.getDefault().getPathMatcher("glob:*.{java}");
@@ -77,10 +88,10 @@ public class Main {
 //                            return 0;
 //                        }
 //                    }).sum();
-//            System.out.printf("Lines of conde in project: %d%n", numLines);
+//            System.out.printf("Lines of code in project: %d%n", numLines);
 //
 //            // which are the most used java keywords
-//            var top20Kwywords = Files.walk(p1)
+//            var top20Keywords = Files.walk(p1)
 //                    .filter(path -> Files.isRegularFile(path) && filter.matches(path.getFileName()))
 //                    .map(path -> {
 //                        try {
@@ -102,14 +113,11 @@ public class Main {
 //                    ).entrySet().stream().sorted(Map.Entry.<String, Long>comparingByValue().reversed())
 //                    .limit(20)
 //                    .collect(Collectors.toList());
-//            System.out.println(top20Kwywords);
+//            System.out.println(top20Keywords);
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
 
-
-
-        var userController = new LoginController(userService, loginVIew, homeController);
-        userController.login();
+        mainController.main();
     }
 }

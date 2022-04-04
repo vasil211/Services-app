@@ -59,7 +59,6 @@ public class MessagesView {
     public Message chatForUser(User user, Long provider_id) {
         ArrayList<Message> message = (ArrayList<Message>) messageService.messagesChat(user.getId(), provider_id);
         if (!message.isEmpty()) {
-            // todo make look
             message.forEach(m -> {
                 if (m.getSender().equals(user.getId())) {
                     System.out.println("\nYou: \n  " + m.getMessage());

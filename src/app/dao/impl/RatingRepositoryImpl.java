@@ -370,11 +370,28 @@ class RatingRepositoryImpl implements RatingRepository {
     }
 
     @Override
-    public float calculateRating(Long id) {
+    public float calculateRatingForUser(Long id) {
         float count = 0;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("select avg(rating) from ratings " +
                     "where service_provider_id = ? and deleted = false");
+            preparedStatement.setLong(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+            rs.next();
+            count = rs.getFloat(1);
+            return count;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return count;
+        }
+    }
+
+    @Override
+    public float calculateRatingForPost(Long id) {
+        float count = 0.0f;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select avg(rating) from ratings " +
+                    "where post_id = ? and deleted = false");
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             rs.next();

@@ -24,6 +24,7 @@ public class ApplicationView {
         application.setUser(user);
         application.setReason(information);
         application.setCreated(LocalDateTime.now());
+        application.setStatus("PENDING");
         return application;
     }
 }
