@@ -13,16 +13,7 @@ import app.service.validators.RatingValidation;
 import app.service.validators.UserValidation;
 import app.view.*;
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -42,81 +33,36 @@ public class Main {
         ApplicationView applicationView = new ApplicationView();
         ApplicationRepository applicationRepository = daoFactory.createApplicationRepository();
         ApplicationService applicationService = new ApplicationServiceImpl(applicationRepository);
-
         CategoryService categoryService = new CategoryServiceImpl(categoryRepository);
         PostService postService = new PostServiceImpl(postRepository, categoryRepository, postValidator);
         MessageService messageService = new MessageServiceImpl(messageRepository);
         RatingService ratingService = new RatingServiceImpl(ratingRepository, ratingValidator);
         AppointmentsService appointmentsService = new AppointmentsServiceImpl(appointmentsRepository);
         CategoryValidation categoryValidator = new CategoryValidation(categoryService);
-        AppointmentController appointmentController = new AppointmentController(appointmentsService, userService);
-        RatingsController ratingsController = new RatingsController(ratingService);
+        RatingView ratingView = new RatingView();
+        RatingsController ratingsController = new RatingsController(ratingService, postService, ratingView);
+        AppointmentController appointmentController = new AppointmentController(appointmentsService, userService,
+                ratingsController);
         PostView postView = new PostView();
         RegistrationView registrationView = new RegistrationView(userValidator);
         RegistrationController registrationController = new RegistrationController(registrationView, userService);
+        ArrayList<Post> posts = (ArrayList<Post>) postService.getAll();
+        ArrayList<Category> categories = (ArrayList<Category>) categoryService.getAllCategories();
+        ServiceController serviceController = new ServiceController(posts, categories, postView, ratingService,
+                ratingView, appointmentController, postService);
         PostsController postsController = new PostsController(categoryService, postService, userService,
-                categoryValidator, ratingService, postView);
+                categoryValidator, ratingService, postView, serviceController);
         MessagesView messagesView = new MessagesView(messageService);
         ApplicationController applicationController = new ApplicationController(applicationService);
         MessagesController messagesController = new MessagesController(messagesView, messageService);
-        ArrayList<Post> posts = (ArrayList<Post>)postService.getAll();
-        ArrayList<Category> categories = (ArrayList<Category>) categoryService.getAllCategories();
-        RatingView ratingView = new RatingView();
-        ServiceController serviceController = new ServiceController(posts, categories, postView, ratingService,
-                ratingView, appointmentController, postService);
         UserController adminController = new UserController(userValidator, userService, applicationView,
                 applicationService, registrationController);
         HomeController homeController = new HomeController(userService, adminController, appointmentsService,
                 postService, postsController, appointmentController, ratingsController, messageService,
                 messagesController, applicationController, serviceController);
-
         LoginController loginController = new LoginController(userService, loginVIew, homeController);
         MainController mainController = new MainController(loginController, registrationController, serviceController);
 
-
-//        var filter = FileSystems.getDefault().getPathMatcher("glob:*.{java}");
-//        Path p1 = Paths.get(".");
-//        try {
-//            // how many line of java code we have written so far?
-//            var numLines = Files.walk(p1)
-//                    .filter(path -> Files.isRegularFile(path) && filter.matches(path.getFileName()))
-//                    .mapToLong(path -> {
-//                        try {
-//                            return Files.lines(path).count();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                            return 0;
-//                        }
-//                    }).sum();
-//            System.out.printf("Lines of code in project: %d%n", numLines);
-//
-//            // which are the most used java keywords
-//            var top20Keywords = Files.walk(p1)
-//                    .filter(path -> Files.isRegularFile(path) && filter.matches(path.getFileName()))
-//                    .map(path -> {
-//                        try {
-//                            return Files.lines(path)
-//                                    .flatMap(line -> Arrays.<String>stream(line.split("\\W+")))
-//                                    .filter(word -> word.length() >= 2)
-//                                    .collect(Collectors.groupingBy(
-//                                            Function.identity(),
-//                                            Collectors.counting())
-//                                    );
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                            return Map.<String, Long>of();
-//                        }
-//                    }).flatMap(wordCounts -> wordCounts.entrySet().stream())
-//                    .collect(Collectors.groupingBy(
-//                            entry -> entry.getKey(),
-//                            Collectors.summingLong(entry -> entry.getValue()))
-//                    ).entrySet().stream().sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-//                    .limit(20)
-//                    .collect(Collectors.toList());
-//            System.out.println(top20Keywords);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         mainController.main();
     }

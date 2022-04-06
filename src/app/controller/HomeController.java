@@ -66,10 +66,6 @@ public class HomeController {
                     new Menu.Option("Manage ratings", () -> {
                         ratingsController.adminRatingsMenu();
                         return "";
-                    }),
-                    new Menu.Option("Browse for service", () -> {
-                        serviceController.controllerForModerator();
-                        return "";
                     })
             ));
             menu.show();

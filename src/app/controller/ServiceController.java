@@ -43,6 +43,7 @@ public class ServiceController {
         var menu = new Menu("Posts", List.of(
                 new Menu.Option("Browse trough categories", () -> {
                     var count = 1;
+                    System.out.println("");
                     for (var category : categories) {
                         System.out.println(count++ + " " + category.getName());
                     }
@@ -73,7 +74,7 @@ public class ServiceController {
                     lookTroughPostsForUser(postsFiltered, user);
                     return "";
                 }),
-                new Menu.Option("list all posts", () -> {
+                new Menu.Option("List all posts", () -> {
                     posts.forEach(post -> {
                         postView.displayPost(post);
                         try {

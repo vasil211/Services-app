@@ -25,16 +25,18 @@ public class PostsController {
     private final CategoryValidation categoryValidation;
     private final RatingService ratingService;
     private final PostView postView;
+    private final ServiceController serviceController;
 
     public PostsController(CategoryService categoryService, PostService postService,
                            UserService userService, CategoryValidation categoryValidation,
-                           RatingService ratingService, PostView postView) {
+                           RatingService ratingService, PostView postView, ServiceController serviceController) {
         this.categoryService = categoryService;
         this.postService = postService;
         this.userService = userService;
         this.categoryValidation = categoryValidation;
         this.ratingService = ratingService;
         this.postView = postView;
+        this.serviceController = serviceController;
     }
 
     public void adminPostsMenu() {
@@ -126,6 +128,10 @@ public class PostsController {
                     } catch (NumberFormatException | NonexistingEntityException e) {
                         System.out.println(e.getMessage());
                     }
+                    return "";
+                }),
+                new Menu.Option("Browse in posts", () -> {
+                    serviceController.controllerForModerator();
                     return "";
                 }),
                 new Menu.Option("List all Posts, without description", () -> {

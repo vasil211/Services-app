@@ -25,4 +25,6 @@ public interface RatingRepository extends Repository<Long, Rating>{
     Collection<Rating> getAllModerated();
 
 
+    Rating getRatingByPostIdFromUser(Long postId, Long userId);
+
 }

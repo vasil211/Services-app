@@ -157,7 +157,8 @@ class MessageRepositoryImpl implements MessageRepository {
     public Long countMessagesForUsers(Long user_id, Long service_provider_id) {
         long count = 0L;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select count(*) from messages where user_id = ? and service_provider_id = ?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select count(*) from messages " +
+                    "where user_id = ? and service_provider_id = ?");
             preparedStatement.setLong(1, user_id);
             preparedStatement.setLong(2, service_provider_id);
             ResultSet rs = preparedStatement.executeQuery();

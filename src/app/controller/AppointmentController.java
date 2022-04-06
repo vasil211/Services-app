@@ -1,5 +1,6 @@
 package app.controller;
 
+import app.exeption.InvalidEntityDataException;
 import app.exeption.NonexistingEntityException;
 import app.model.Appointments;
 import app.model.Post;
@@ -11,14 +12,18 @@ import app.view.Menu;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AppointmentController {
     private final AppointmentsService appointmentsService;
     private final UserService userService;
+    private final RatingsController ratingsController;
 
-    public AppointmentController(AppointmentsService appointmentsService, UserService userService) {
+    public AppointmentController(AppointmentsService appointmentsService, UserService userService,
+                                 RatingsController ratingsController) {
         this.appointmentsService = appointmentsService;
         this.userService = userService;
+        this.ratingsController = ratingsController;
     }
 
     public void adminAppointmentsMenu() {
@@ -363,8 +368,10 @@ public class AppointmentController {
         var menu = new Menu("", List.of(
                 new Menu.Option("List pending, you have " + pendingSize, () -> {
                     if (!pending.isEmpty()) {
+                        AtomicInteger count = new AtomicInteger(1);
                         pending.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("Number: " + count.getAndIncrement());
                             joiner.add("For: " + appointment.getPost().getName());
                             joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
                                     + appointment.getServiceProvider().getLastName());
@@ -372,6 +379,8 @@ public class AppointmentController {
                             joiner.add("\nCreated: " + appointment.getCreated());
                             System.out.println(joiner);
                         });
+                        ArrayList<Appointments> pendingAppointments = new ArrayList<Appointments>(pending);
+                        ratingsController.openPostFromAppointment(pendingAppointments);
                     } else {
                         System.out.println("You have no pending appointments");
                     }
@@ -379,8 +388,10 @@ public class AppointmentController {
                 }),
                 new Menu.Option("List all accepted, you have " + acceptedSize, () -> {
                     if (!accepted.isEmpty()) {
+                        AtomicInteger count = new AtomicInteger(1);
                         accepted.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
+                            joiner.add("Number: " + count.getAndIncrement());
                             joiner.add("For: " + appointment.getPost().getName());
                             joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
                                     + appointment.getServiceProvider().getLastName());
@@ -389,6 +400,8 @@ public class AppointmentController {
                             joiner.add("\nAccepted: " + appointment.getUpdated());
                             System.out.println(joiner);
                         });
+                        ArrayList<Appointments> acceptedAppointments = new ArrayList<Appointments>(accepted);
+                        ratingsController.openPostFromAppointment(acceptedAppointments);
                     } else {
                         System.out.println("You have no accepted appointments");
                     }
@@ -396,16 +409,20 @@ public class AppointmentController {
                 }),
                 new Menu.Option("List all finished, you have " + finishedSize, () -> {
                     if (!finished.isEmpty()) {
+                        AtomicInteger count = new AtomicInteger(1);
                         finished.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
-                            joiner.add("For: " + appointment.getPost().getName());
+                            joiner.add("Number: " + count.getAndIncrement());
+                            joiner.add("\nFor: " + appointment.getPost().getName());
                             joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
                                     + appointment.getServiceProvider().getLastName());
-                            joiner.add("\nAddress: " + appointment.getAddress());
+                           // joiner.add("\nAddress: " + appointment.getAddress());
                             joiner.add("\nCreated: " + appointment.getCreated());
                             joiner.add("\nFinished: " + appointment.getUpdated());
                             System.out.println(joiner);
                         });
+                        ArrayList<Appointments> finishedAppointments = new ArrayList<Appointments>(finished);
+                        ratingsController.openPostFromFinishedAppointment(finishedAppointments, user);
                     } else {
                         System.out.println("You have no finished appointments");
                     }
@@ -413,9 +430,11 @@ public class AppointmentController {
                 }),
                 new Menu.Option("List all declined, you have " + declinedSize, () -> {
                     if (!declined.isEmpty()) {
+                        AtomicInteger count = new AtomicInteger(1);
                         declined.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
-                            joiner.add("For: " + appointment.getPost().getName());
+                            joiner.add("Number: " + count.getAndIncrement());
+                            joiner.add("\nFor: " + appointment.getPost().getName());
                             joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
                                     + appointment.getServiceProvider().getLastName());
                             joiner.add("\nAddress: " + appointment.getAddress());
@@ -424,6 +443,8 @@ public class AppointmentController {
                             joiner.add("\nReason: " + appointment.getDeclineComment());
                             System.out.println(joiner);
                         });
+                        ArrayList<Appointments> declinedAppointments = new ArrayList<Appointments>(declined);
+                        ratingsController.openPostFromAppointment(declinedAppointments);
                     } else {
                         System.out.println("You have no declined appointments");
                     }
@@ -434,7 +455,39 @@ public class AppointmentController {
     }
 
     public void createAppointment(User user, Post post) {
-        System.out.println("hello");
-        // todo create appointment
+        Scanner sc = new Scanner(System.in);
+        var past = appointmentsService.findAllPendingFromUser(user.getId());
+        if (past.isEmpty()) {
+            System.out.println("\nAre you sure you want to create an appointment for " + post.getName() + "? <yes/no>");
+            String answer = sc.nextLine();
+            if (answer.equals("yes")) {
+                String address = "";
+                do {
+                    System.out.println("\nPlease enter the address of the appointment");
+                     address = sc.nextLine();
+                     if (address.length() > 200 || address.length() < 2) {
+                         System.out.println("\nAddress must be between 2 and 200 characters");
+                     }
+                }while (address.length() > 200 || address.length() < 2);
+                Appointments appointment = new Appointments();
+                appointment.setServiceProvider(post.getUser());
+                appointment.setUser(user);
+                appointment.setPost(post);
+                appointment.setState("PENDING");
+                appointment.setCreated(LocalDateTime.now());
+                appointment.setUpdated(LocalDateTime.now());
+                appointment.setAddress(address);
+                try {
+                    appointmentsService.create(appointment);
+                    System.out.println("\nAppointment created");
+                } catch (InvalidEntityDataException e) {
+                    System.out.println("\n" + e.getMessage());
+                }
+            }else {
+                System.out.println("\nYou have cancelled the appointment creation");
+            }
+        }else {
+            System.out.println("You have already have pending appointment");
+        }
     }
 }

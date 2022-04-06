@@ -3,6 +3,7 @@ package app.model;
 import app.dao.Identifiable;
 
 import java.time.LocalDateTime;
+import java.util.StringJoiner;
 
 public class Post implements Identifiable<Long> {
     private Long id;
@@ -89,5 +90,17 @@ public class Post implements Identifiable<Long> {
 
     public void setModified(LocalDateTime modified) {
         this.modified = modified;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(" ", "\n", "")
+                .add("user=" + user)
+                .add("category=" + category)
+                .add("name='" + name + "'")
+                .add("info='" + info + "'")
+                .add("created=" + created)
+                .add("modified=" + modified)
+                .toString();
     }
 }

@@ -31,4 +31,5 @@ public interface RatingService {
     Collection<Rating> getAllModerated();
 
 
+    Rating getRatingByPostIdFromUser(Long postId, Long userId);
 }

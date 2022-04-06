@@ -89,7 +89,7 @@ public class RatingServiceImpl implements RatingService {
             System.out.println(sb);
             return null;
         }
-        return ratingRepo.create(rating);
+        return ratingRepo.update(rating);
     }
 
     @Override
@@ -153,5 +153,10 @@ public class RatingServiceImpl implements RatingService {
     @Override
     public Collection<Rating> getAllModerated() {
         return ratingRepo.getAllModerated();
+    }
+
+    @Override
+    public Rating getRatingByPostIdFromUser(Long postId, Long userId) {
+        return ratingRepo.getRatingByPostIdFromUser(postId, userId);
     }
 }

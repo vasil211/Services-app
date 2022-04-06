@@ -1,21 +1,27 @@
 package app.controller;
 
 import app.exeption.NonexistingEntityException;
+import app.model.Appointments;
+import app.model.Post;
 import app.model.Rating;
+import app.model.User;
+import app.service.PostService;
 import app.service.RatingService;
 import app.view.Menu;
+import app.view.RatingView;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.List;
-import java.util.Scanner;
-import java.util.StringJoiner;
+import java.util.*;
 
 public class RatingsController {
     private final RatingService ratingService;
+    private final PostService postService;
+    private final RatingView ratingView;
 
-    public RatingsController(RatingService ratingService) {
+    public RatingsController(RatingService ratingService, PostService postService, RatingView ratingView) {
         this.ratingService = ratingService;
+        this.postService = postService;
+        this.ratingView = ratingView;
     }
 
     public void adminRatingsMenu() {
@@ -182,7 +188,7 @@ public class RatingsController {
                 new Menu.Option("Browse un-moderated comments", () -> {
                     try {
                         browseUnmoderatedComments();
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         System.out.println("");
                     }
                     return "";
@@ -215,7 +221,7 @@ public class RatingsController {
         Scanner sc = new Scanner(System.in);
         System.out.println("Ratings: \n");
         var ratings = ratingService.getAllUnmoderated();
-        for(var rating : ratings){
+        for (var rating : ratings) {
             StringJoiner sj = new StringJoiner(", ", "\n", "");
             sj.add("\nID: " + rating.getId());
             sj.add("\nFor post - ID: " + rating.getPost().getId());
@@ -254,14 +260,15 @@ public class RatingsController {
             ));
             var check = menu.showForForEach();
             if (check) break;
-        };
+        }
+        ;
     }
 
     public void browseModeratedComments() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Ratings: \n");
         var ratings = ratingService.getAllModerated();
-        for(var rating : ratings){
+        for (var rating : ratings) {
             StringJoiner sj = new StringJoiner(", ", "\n", "");
             sj.add("\nID: " + rating.getId());
             sj.add("\nFor post - ID: " + rating.getPost().getId());
@@ -295,7 +302,123 @@ public class RatingsController {
             ));
             var check = menu.showForForEach();
             if (check) break;
-        };
+        }
+        ;
+    }
+
+    public void openPostFromAppointment(ArrayList<Appointments> appointments) {
+        Scanner sc = new Scanner(System.in);
+        var menu = new Menu("", List.of(
+                new Menu.Option("Open post from appointment", () -> {
+                    String choice = "";
+                    int choiceInt = 0;
+                    do {
+                        System.out.println("Enter the number of the appointment: ");
+                        choice = sc.nextLine();
+                        try {
+                            choiceInt = Integer.parseInt(choice);
+                            if (choiceInt < 1 || choiceInt > appointments.size()) {
+                                System.out.println("Invalid number. <1/" + appointments.size() + ">");
+                            } else {
+                                var post = postService.getPostById(appointments.get(choiceInt - 1)
+                                        .getPost().getId());
+                                StringJoiner sj = new StringJoiner(" ", "\n", "");
+                                sj.add("\nPost:");
+                                sj.add("From: " + post.getUser().getFirstName() + " " + post.getUser().getLastName());
+                                sj.add("\nCategory: " + post.getCategory().getName());
+                                sj.add("\nName: " + post.getName());
+                                sj.add("\nInfo: " + post.getInfo());
+                                sj.add("\nCreated: " + post.getCreated()
+                                        .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                                sj.add("Last modified: " + post.getModified()
+                                        .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                                System.out.println(sj);
+                                break;
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input");
+                        } catch (NonexistingEntityException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } while (true);
+                    return "";
+                })
+        ));
+        menu.show();
+    }
+
+    public void openPostFromFinishedAppointment(ArrayList<Appointments> appointments, User user) {
+        Scanner sc = new Scanner(System.in);
+        var menu = new Menu("", List.of(
+                new Menu.Option("Open post from appointment, and give options for rating the service", () -> {
+                    String choice = "";
+                    int choiceInt = 0;
+                    do {
+                        System.out.println("Enter the number of the appointment: ");
+                        choice = sc.nextLine();
+                        try {
+                            choiceInt = Integer.parseInt(choice);
+                            if (choiceInt < 1 || choiceInt > appointments.size()) {
+                                System.out.println("Invalid number. <1/" + appointments.size() + ">");
+                            } else {
+                                var post = postService.getPostById(appointments.get(choiceInt - 1)
+                                        .getPost().getId());
+                                StringJoiner sj = new StringJoiner(" ", "\n", "");
+                                sj.add("\nPost:");
+                                sj.add("From: " + post.getUser().getFirstName() + " " + post.getUser().getLastName());
+                                sj.add("\nCategory: " + post.getCategory().getName());
+                                sj.add("\nName: " + post.getName());
+                                sj.add("\nInfo: " + post.getInfo());
+                                sj.add("\nCreated: " + post.getCreated()
+                                        .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                                sj.add("Last modified: " + post.getModified()
+                                        .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+                                System.out.println(sj);
+                                var rating = ratingService.getRatingByPostIdFromUser(post.getId(), user.getId());
+                                if (rating == null) {
+                                    createReview(post, user);
+                                }else {
+                                    updateReview(rating);
+                                }
+                                break;
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input");
+                        } catch (NonexistingEntityException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } while (true);
+                    return "";
+                })
+        ));
+        menu.show();
+
+    }
+
+    private void updateReview(Rating rating) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("\nyour comment: " + rating.getComment());
+        System.out.println("your rating: " + rating.getRating());
+        String choice = "";
+        System.out.println("Do you want to update your review? (yes/no)");
+        choice = sc.nextLine();
+        if (choice.equals("yes")) {
+            Rating updated = ratingView.updateReview(rating);
+            ratingService.updateRating(updated);
+            System.out.println("Review updated");
+        }
+    }
+
+    private void createReview(Post post, User user) {
+        Scanner sc = new Scanner(System.in);
+        String choice = "";
+        System.out.println("\nDo you want to create review? (yes/no)");
+        choice = sc.nextLine();
+        if (choice.equals("yes")) {
+            Rating created = ratingView.createReview(post, user);
+            ratingService.createRating(created);
+            System.out.println("Review created");
+        }
     }
 }
 
