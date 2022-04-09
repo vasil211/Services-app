@@ -235,30 +235,31 @@ public class AppointmentController {
         } catch (NonexistingEntityException e) {
             System.out.print("");
         }
-        int pendingSize = 0;
-        int acceptedSize = 0;
-        int finishedSize = 0;
-        if (pending != null) {
-            pendingSize = pending.size();
+        if (pending == null) {
+            pending = new ArrayList<>();
         }
-        if (accepted != null) {
-            acceptedSize = accepted.size();
+        if (accepted == null) {
+            accepted = new ArrayList<>();
         }
-        if (finished != null) {
-            finishedSize = finished.size();
+        if (finished == null) {
+            finished = new ArrayList<>();
         }
         Collection<Appointments> finalPending = pending;
         Collection<Appointments> finalAccepted = accepted;
         Collection<Appointments> finalFinished = finished;
+
         var menu = new Menu("Appointments", List.of(
-                new Menu.Option("See all pending - you have: " + pendingSize, () -> {
-                    if (finalPending != null) {
-                        finalPending.forEach(appointment -> {
+                new Menu.Option("See all pending", () -> {
+                    if (finalPending.size() > 0) {
+                        var iter = finalPending.iterator();
+                        while (iter.hasNext()) {
+                            var appointment = iter.next();
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add(appointment.getUser().getFirstName() + " "
                                     + appointment.getUser().getLastName());
                             joiner.add(" has made an appointment for: " + appointment.getPost().getName());
                             joiner.add("\nPhone: " + appointment.getUser().getPhone());
+                            joiner.add("\nAddress: " + appointment.getAddress());
                             joiner.add("\nDate: " + appointment.getCreated()
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                             System.out.print("\n");
@@ -266,12 +267,17 @@ public class AppointmentController {
                             var options = new Menu("Options:", List.of(
                                     new Menu.Option("Accept", () -> {
                                         appointmentsService.acceptAppointment(appointment.getId());
+                                        finalAccepted.add(appointment);
+                                        iter.remove();
+                                        System.out.println("Appointment accepted");
                                         return "Appointment accepted";
                                     }),
                                     new Menu.Option("Decline", () -> {
                                         System.out.println("Give a reason for declining the appointment: ");
                                         String reason = sc.nextLine();
                                         appointmentsService.declineAppointment(appointment.getId(), reason);
+                                        iter.remove();
+                                        System.out.println("Appointment declined");
                                         return "Appointment declined";
                                     }),
                                     new Menu.Option("Go to next", () -> {
@@ -279,21 +285,24 @@ public class AppointmentController {
                                     })
                             ));
                             var check = options.showForForEach();
-                            if (check) throw new RuntimeException();
+                            if (check) break;
 
-                        });
+                        }
                     } else {
                         System.out.println("You have no pending appointments");
                     }
                     return "";
                 }),
-                new Menu.Option("See all accepted - you have: " + acceptedSize, () -> {
-                    if (finalAccepted != null) {
-                        finalAccepted.forEach(appointment -> {
+                new Menu.Option("See all accepted", () -> {
+                    if (finalAccepted.size() > 0) {
+                        var iter = finalAccepted.iterator();
+                        while (iter.hasNext()) {
+                            var appointment = iter.next();
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add(appointment.getUser().getFirstName() + " " + appointment.getUser().getLastName());
                             joiner.add(" has made an appointment for: " + appointment.getPost().getName());
                             joiner.add("\nPhone: " + appointment.getUser().getPhone());
+                            joiner.add("\nAddress: " + appointment.getAddress());
                             joiner.add("\nDate: " + appointment.getCreated()
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                             joiner.add("\nAccepted on: " + appointment.getUpdated());
@@ -302,12 +311,17 @@ public class AppointmentController {
                             var options = new Menu("Options:", List.of(
                                     new Menu.Option("Mark as finished", () -> {
                                         appointmentsService.finishAppointment(appointment.getId());
+                                        finalFinished.add(appointment);
+                                        iter.remove();
+                                        System.out.println("Appointment finished");
                                         return "Appointment finished";
                                     }),
                                     new Menu.Option("Decline", () -> {
                                         System.out.println("Give a reason for declining the appointment: ");
                                         String reason = sc.nextLine();
                                         appointmentsService.declineAppointment(appointment.getId(), reason);
+                                        iter.remove();
+                                        System.out.println("Appointment declined");
                                         return "Appointment declined";
                                     }),
                                     new Menu.Option("Go to next", () -> {
@@ -315,26 +329,27 @@ public class AppointmentController {
                                     })
                             ));
                             var check = options.showForForEach();
-                            if (check) throw new RuntimeException();
-                        });
+                            if (check) break;
+                        }
                     } else {
                         System.out.println("You have no accepted appointments");
                     }
                     return "";
                 }),
-                new Menu.Option("See all finished - you have: " + finishedSize, () -> {
-                    if (finalFinished != null) {
-                        finalFinished.forEach(appointment -> {
+                new Menu.Option("See all finished", () -> {
+                    if (finalFinished.size() > 0) {
+                        for (var appointment : finalFinished) {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add(appointment.getUser().getFirstName() + " " + appointment.getUser().getLastName());
                             joiner.add(" made an appointment for: " + appointment.getPost().getName());
                             joiner.add("\nPhone: " + appointment.getUser().getPhone());
+                            joiner.add("\nAddress: " + appointment.getAddress());
                             joiner.add("\nDate: " + appointment.getCreated()
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                             joiner.add("\nFinished on: " + appointment.getUpdated()
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                             System.out.println(joiner.toString());
-                        });
+                        }
                     } else {
                         System.out.println("You have no finished appointments");
                     }
@@ -372,7 +387,7 @@ public class AppointmentController {
                         pending.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add("Number: " + count.getAndIncrement());
-                            joiner.add("For: " + appointment.getPost().getName());
+                            joiner.add("\nFor: " + appointment.getPost().getName());
                             joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
                                     + appointment.getServiceProvider().getLastName());
                             joiner.add("\nAddress: " + appointment.getAddress());
@@ -392,7 +407,7 @@ public class AppointmentController {
                         accepted.forEach(appointment -> {
                             StringJoiner joiner = new StringJoiner("", "\n", " ");
                             joiner.add("Number: " + count.getAndIncrement());
-                            joiner.add("For: " + appointment.getPost().getName());
+                            joiner.add("\nFor: " + appointment.getPost().getName());
                             joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
                                     + appointment.getServiceProvider().getLastName());
                             joiner.add("\nAddress: " + appointment.getAddress());
@@ -416,7 +431,7 @@ public class AppointmentController {
                             joiner.add("\nFor: " + appointment.getPost().getName());
                             joiner.add("\nFrom: " + appointment.getServiceProvider().getFirstName() + " "
                                     + appointment.getServiceProvider().getLastName());
-                           // joiner.add("\nAddress: " + appointment.getAddress());
+                            // joiner.add("\nAddress: " + appointment.getAddress());
                             joiner.add("\nCreated: " + appointment.getCreated());
                             joiner.add("\nFinished: " + appointment.getUpdated());
                             System.out.println(joiner);
@@ -464,11 +479,11 @@ public class AppointmentController {
                 String address = "";
                 do {
                     System.out.println("\nPlease enter the address of the appointment");
-                     address = sc.nextLine();
-                     if (address.length() > 200 || address.length() < 2) {
-                         System.out.println("\nAddress must be between 2 and 200 characters");
-                     }
-                }while (address.length() > 200 || address.length() < 2);
+                    address = sc.nextLine();
+                    if (address.length() > 200 || address.length() < 2) {
+                        System.out.println("\nAddress must be between 2 and 200 characters");
+                    }
+                } while (address.length() > 200 || address.length() < 2);
                 Appointments appointment = new Appointments();
                 appointment.setServiceProvider(post.getUser());
                 appointment.setUser(user);
@@ -483,10 +498,10 @@ public class AppointmentController {
                 } catch (InvalidEntityDataException e) {
                     System.out.println("\n" + e.getMessage());
                 }
-            }else {
+            } else {
                 System.out.println("\nYou have cancelled the appointment creation");
             }
-        }else {
+        } else {
             System.out.println("You have already have pending appointment");
         }
     }

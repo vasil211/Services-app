@@ -5,7 +5,6 @@ import app.model.Category;
 import app.model.Post;
 import app.model.Rating;
 import app.model.User;
-import app.service.AppointmentsService;
 import app.service.PostService;
 import app.service.RatingService;
 import app.view.Menu;
@@ -23,11 +22,12 @@ public class ServiceController {
     private final RatingView ratingView;
     private final AppointmentController appointmentController;
     private final PostService postService;
+    private final MessagesController messagesController;
 
 
     public ServiceController(ArrayList<Post> posts, ArrayList<Category> categories, PostView postView,
                              RatingService ratingService, RatingView ratingView,
-                             AppointmentController appointmentController, PostService postService) {
+                             AppointmentController appointmentController, PostService postService, MessagesController messagesController) {
         this.posts = posts;
         this.categories = categories;
         this.postView = postView;
@@ -35,6 +35,7 @@ public class ServiceController {
         this.ratingView = ratingView;
         this.appointmentController = appointmentController;
         this.postService = postService;
+        this.messagesController = messagesController;
     }
 
     public void servicesMenu(User user) {
@@ -270,9 +271,13 @@ public class ServiceController {
                     comments.forEach(ratingView::displayRating);
                 }
                 int finalChoiceInt = choiceInt;
-                var menu = new Menu("", List.of(
+                var menu = new Menu("Post", List.of(
                         new Menu.Option("Create Appointment", () -> {
                             appointmentController.createAppointment(user, postsFiltered.get(finalChoiceInt - 1));
+                            return "";
+                        }),
+                        new Menu.Option("Send message", () -> {
+                            messagesController.sendMessage(user, postsFiltered.get(finalChoiceInt - 1));
                             return "";
                         })
                 ));

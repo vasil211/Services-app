@@ -48,13 +48,13 @@ public class Main {
         RegistrationController registrationController = new RegistrationController(registrationView, userService);
         ArrayList<Post> posts = (ArrayList<Post>) postService.getAll();
         ArrayList<Category> categories = (ArrayList<Category>) categoryService.getAllCategories();
+        MessagesView messagesView = new MessagesView(messageService);
+        MessagesController messagesController = new MessagesController(messagesView, messageService);
         ServiceController serviceController = new ServiceController(posts, categories, postView, ratingService,
-                ratingView, appointmentController, postService);
+                ratingView, appointmentController, postService, messagesController);
         PostsController postsController = new PostsController(categoryService, postService, userService,
                 categoryValidator, ratingService, postView, serviceController);
-        MessagesView messagesView = new MessagesView(messageService);
         ApplicationController applicationController = new ApplicationController(applicationService);
-        MessagesController messagesController = new MessagesController(messagesView, messageService);
         UserController adminController = new UserController(userValidator, userService, applicationView,
                 applicationService, registrationController);
         HomeController homeController = new HomeController(userService, adminController, appointmentsService,

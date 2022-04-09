@@ -480,7 +480,7 @@ public class PostsController {
         } while (true);
     }
 
-    public Post updatePost(Post post){
+    public void updatePost(Post post){
         var menu = new Menu("Update post", List.of(
                 new Menu.Option("Update name", () -> {
                     String name = postView.updateName(post);
@@ -502,6 +502,5 @@ public class PostsController {
         menu.show();
         postService.updatePost(post);
         System.out.println("Post updated");
-        return post;
     }
 }

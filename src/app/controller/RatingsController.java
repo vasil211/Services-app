@@ -333,6 +333,15 @@ public class RatingsController {
                                 sj.add("Last modified: " + post.getModified()
                                         .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
                                 System.out.println(sj);
+                                ArrayList<Rating> comments = null;
+                                try {
+                                    comments = (ArrayList<Rating>) ratingService.getAllRatingsForPost(post.getId());
+                                } catch (NonexistingEntityException e) {
+                                    System.out.println("No comments yet");
+                                }
+                                if (comments != null) {
+                                    comments.forEach(ratingView::displayRating);
+                                }
                                 break;
                             }
                         } catch (NumberFormatException e) {

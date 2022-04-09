@@ -1,5 +1,6 @@
 package app.controller;
 
+import app.exeption.InvalidEntityDataException;
 import app.exeption.NonexistingEntityException;
 import app.model.*;
 import app.service.MessageService;
@@ -90,5 +91,28 @@ public class MessagesController {
             } while (true);
         }
         return false;
+    }
+
+    public void sendMessage(User user, Post post) {
+        Scanner sc = new Scanner(System.in);
+        String message = "";
+        do {
+            System.out.println("Enter message:");
+            message = sc.nextLine();
+            if (message.length() > 250) System.out.println("Message is too long");
+        } while (message.length() > 250);
+        Message newMessage = new Message();
+        newMessage.setSender(user.getId());
+        newMessage.setUserProvider(post.getUser());
+        newMessage.setUser(user);
+        newMessage.setPost(post);
+        newMessage.setMessage(message);
+        newMessage.setSent(LocalDateTime.now());
+        try {
+            messageService.create(newMessage);
+            System.out.println("Message sent, you can open chats to continue conversation");
+        } catch (InvalidEntityDataException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
