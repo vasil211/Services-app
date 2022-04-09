@@ -131,7 +131,5 @@ values( 4, 3, 4, 2, "Hello! i need help", now()),
 insert into ratings(service_provider_id, user_id, post_id, rating, comment , created)
 values(3, 4, 2, 5.0, "Exelent work! Came rly fast", now());
 
-
-
 insert into appointments(service_provider_id, user_id, post_id, address, state)
 values(3, 4, 2, "studentski grad, blok 4, ap.64", "FINISHED");

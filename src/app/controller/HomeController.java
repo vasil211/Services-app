@@ -75,6 +75,10 @@ public class HomeController {
                         applicationController.moderatorApplicationsMenu();
                         return "";
                     }),
+                    new Menu.Option("Search for service", () -> {
+                        serviceController.controllerForModerator();
+                        return "";
+                    }),
                     new Menu.Option("Browse posts", () -> {
                         try {
                             postsController.moderatePostsMenu();
@@ -87,10 +91,7 @@ public class HomeController {
                             ratingsController.moderateCommentsMenu();
                         return "";
                     }),
-                    new Menu.Option("Browse for service", () -> {
-                        serviceController.controllerForModerator();
-                        return "";
-                    }),
+
                     new Menu.Option("Menage personal data", () -> {
                         userController.updatePersonalData(user);
                         return "";
